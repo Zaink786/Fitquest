@@ -17,8 +17,8 @@ class FitQuestApp extends StatelessWidget {
       title: 'FitQuest',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        useMaterial3: false,          // 👈 IMPORTANT: fixes bottom bar visibility
-        primarySwatch: Colors.blue,   // 👈 Makes your app blue-themed
+        useMaterial3: false,          //  IMPORTANT: fixes bottom bar visibility
+        primarySwatch: Colors.blue,   //  Makes your app blue-themed
       ),
       home: const HomeScreen(),
     );
