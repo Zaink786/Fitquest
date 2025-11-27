@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/workout_model.dart'; 
 
 class WorkoutsScreen extends StatefulWidget {
   const WorkoutsScreen({Key? key}) : super(key: key);
@@ -9,27 +10,46 @@ class WorkoutsScreen extends StatefulWidget {
 
 class _WorkoutsScreenState extends State<WorkoutsScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _durationController = TextEditingController();
+  final TextEditingController _setsController = TextEditingController();
 
-  final List<Map<String, dynamic>> _workouts = [];
+  // Using the Workout model instead of Map
+  final List<Workout> _workouts = [];
 
   void _addWorkout() {
-    if (_nameController.text.isNotEmpty && _durationController.text.isNotEmpty) {
-      setState(() {
-        _workouts.add({
-          'name': _nameController.text,
-          'duration': int.parse(_durationController.text),
-          'date': DateTime.now(),
-        });
-      });
-
-      _nameController.clear();
-      _durationController.clear();
-
+    if (_nameController.text.isEmpty || _setsController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Workout added!")),
+        const SnackBar(content: Text("Please enter a workout name and sets")),
       );
+      return;
     }
+
+    final sets = int.tryParse(_setsController.text);
+    if (sets == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Sets must be a number")),
+      );
+      return;
+    }
+
+    final workout = Workout(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: _nameController.text,
+      type: "Gym", // temporary default – can make this user-selectable later
+      date: DateTime.now(),
+      sets: sets,
+      pointsEarned: 0, // placeholder until points logic is added
+    );
+
+    setState(() {
+      _workouts.add(workout);
+    });
+
+    _nameController.clear();
+    _setsController.clear();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Workout added!")),
+    );
   }
 
   @override
@@ -41,8 +61,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Log a Workout",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Log a Workout",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
 
             TextField(
@@ -56,10 +78,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             const SizedBox(height: 12),
 
             TextField(
-              controller: _durationController,
+              controller: _setsController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: "Duration (mins)",
+                labelText: "Sets", 
                 border: OutlineInputBorder(),
               ),
             ),
@@ -72,8 +94,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             ),
 
             const SizedBox(height: 20),
-            const Text("Your Workouts",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Your Workouts",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
 
             Expanded(
@@ -83,10 +107,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   final workout = _workouts[index];
                   return Card(
                     child: ListTile(
-                      title: Text(workout['name']),
+                      title: Text(workout.name),
                       subtitle: Text(
-                        "Duration: ${workout['duration']} mins\n"
-                        "Date: ${workout['date'].toString().split('.')[0]}",
+                        "Sets: ${workout.sets}\n"
+                        "Date: ${workout.date.toString().split('.')[0]}",
                       ),
                     ),
                   );

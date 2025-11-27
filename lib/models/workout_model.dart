@@ -4,7 +4,7 @@ class Workout {
   final String name;
   final String type; // e.g. 'Run', 'Gym', 'Walk'
   final DateTime date;
-  final int durationMinutes;
+  final int sets;          
   final int pointsEarned;
 
   Workout({
@@ -12,7 +12,7 @@ class Workout {
     required this.name,
     required this.type,
     required this.date,
-    required this.durationMinutes,
+    required this.sets,    
     required this.pointsEarned,
   });
 }

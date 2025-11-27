@@ -16,12 +16,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? _errorMessage;
 
   int _todaySteps = 0;
-  int _dailyGoal = 10000; // placeholder for now
+  int _dailyGoal = 10000; // placeholder
   int _points = 0;
   int _streakDays = 4; // placeholder
-
-  // 🔹 New fields for level card
-  int _totalPoints = 0;
+  // New fields for level card
+int _totalPoints = 0;
   int _currentLevel = 1;
   double _levelProgress = 0.0; // 0.0–1.0
 
@@ -63,13 +62,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadDashboardData();
   }
 
-  // 🔹 Simple level logic: 500 points per level
-  void _updateLevel() {
-    const int pointsPerLevel = 500;
-    _currentLevel = 1 + (_totalPoints ~/ pointsPerLevel);
-    _levelProgress = (_totalPoints % pointsPerLevel) / pointsPerLevel;
-  }
-
   Future<void> _loadDashboardData() async {
     setState(() {
       _isLoading = true;
@@ -81,15 +73,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final steps = await _googleFitService.getTodaySteps();
       final stepPoints = PointsService.calculateStepPoints(steps);
 
-      // For now, totalPoints is just a placeholder base + today’s points
-      const int baseTotalPoints = 320; // pretend this is stored from past days
-
       setState(() {
         _todaySteps = steps;
         _points = stepPoints;
-        _totalPoints = baseTotalPoints + stepPoints;
         _streakDays = 4; // still placeholder
-        _updateLevel();
         _isLoading = false;
       });
     } catch (e) {
@@ -159,10 +146,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ] else ...[
-                // 🔹 NEW: Level card at the top
-                _buildLevelCard(),
-                const SizedBox(height: 16),
-
                 // Big steps card
                 Card(
                   elevation: 2,
@@ -305,7 +288,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: const ListTile(
                     leading: Icon(Icons.directions_walk),
                     title: Text('Evening walk'),
-                    subtitle: Text('20 mins • 2,000 steps'),
+                    subtitle: Text('40 mins • 2,000 steps'),
                     trailing: Text('+40 pts'),
                   ),
                 ),
@@ -316,95 +299,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
- 
- // New helper widget for the level card
-Widget _buildLevelCard() {
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row: Level + total points + trophy icon
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Level $_currentLevel',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$_totalPoints total points',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.emoji_events,
-                  size: 40,
-                  color: Colors.blue,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Progress to next level
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Progress to next level',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  Text(
-                    '${(_levelProgress * 100).toInt()}%',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: _levelProgress,
-                  minHeight: 8,
-                  backgroundColor: Colors.grey[300],
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
 }
