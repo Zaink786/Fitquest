@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/google_fit_service.dart';
 import '../../services/points_service.dart';
+import '../../services/exercise_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -11,6 +12,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GoogleFitService _googleFitService = GoogleFitService();
+  final ExerciseService _exerciseService = ExerciseService();
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -22,7 +24,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // New fields for level card
 int _totalPoints = 0;
   int _currentLevel = 1;
-  double _levelProgress = 0.0; // 0.0–1.0
+  double _levelProgress = 0.0;
+  
+  // Exercise database stats
+  int _totalExercises = 0;
+  int _totalCategories = 0; 
 
   String _formatDate(DateTime date) {
     const weekdays = [
@@ -60,6 +66,7 @@ int _totalPoints = 0;
   void initState() {
     super.initState();
     _loadDashboardData();
+    _loadExerciseStats();
   }
 
   Future<void> _loadDashboardData() async {
@@ -84,6 +91,18 @@ int _totalPoints = 0;
         _errorMessage = 'Failed to load activity data';
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadExerciseStats() async {
+    try {
+      final stats = await _exerciseService.getDatabaseStats();
+      setState(() {
+        _totalExercises = stats['totalExercises'] ?? 0;
+        _totalCategories = stats['categories'] ?? 0;
+      });
+    } catch (e) {
+      print('Error loading exercise stats: $e');
     }
   }
 
@@ -268,6 +287,83 @@ int _totalPoints = 0;
                       ),
                     ),
                   ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Exercise Database Stats Card
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.fitness_center, color: Colors.purple[700]),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Exercise Database',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '$_totalExercises exercises',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$_totalCategories categories available',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.purple[50],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                size: 16,
+                                color: Colors.purple[700],
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Ready to track your workouts',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.purple[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
 
                 const SizedBox(height: 16),
