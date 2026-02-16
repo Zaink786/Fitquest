@@ -5,8 +5,14 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("Settings – preferences here"),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: const Center(
+        child: Text(
+          'Settings placeholder screen',
+          style: TextStyle(fontSize: 18),
+        ),
+      ),
     );
   }
 }
