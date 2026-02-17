@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/exercise_model.dart';
 import '../../models/workout_session_model.dart';
 import '../../services/exercise_service.dart';
+import '../../services/storage_service.dart';
 
 class WorkoutsScreen extends StatefulWidget {
   const WorkoutsScreen({Key? key}) : super(key: key);
@@ -22,6 +23,14 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   void initState() {
     super.initState();
     _loadExercises();
+    _loadSavedWorkouts();
+  }
+
+  Future<void> _loadSavedWorkouts() async {
+    final savedWorkouts = StorageService.getAllWorkouts();
+    setState(() {
+      _workoutSessions = savedWorkouts;
+    });
   }
 
   Future<void> _loadExercises() async {
@@ -240,24 +249,16 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               final sets = int.tryParse(setsController.text) ?? 3;
               final reps = int.tryParse(repsController.text) ?? 10;
               final weight = double.tryParse(weightController.text);
               
-              final points = WorkoutExercise.calculatePoints(
+              final workoutExercise = WorkoutExercise.fromExercise(
                 exercise: exercise,
                 sets: sets,
                 reps: reps,
                 weight: weight,
-              );
-
-              final workoutExercise = WorkoutExercise(
-                exercise: exercise,
-                sets: sets,
-                reps: reps,
-                weight: weight,
-                pointsEarned: points,
               );
 
               final session = WorkoutSession(
@@ -265,8 +266,17 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 name: '${exercise.category} Workout',
                 date: DateTime.now(),
                 exercises: [workoutExercise],
-                totalPoints: points,
+                totalPoints: workoutExercise.pointsEarned,
               );
+
+              // Save to storage
+              await StorageService.saveWorkout(session);
+              
+              // Add points
+              await StorageService.addPoints(session.totalPoints);
+              
+              // Update streak
+              await StorageService.updateStreak();
 
               setState(() {
                 _workoutSessions.add(session);
@@ -276,7 +286,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Workout logged! Earned $points points!'),
+                  content: Text('Workout logged! Earned ${session.totalPoints} points!'),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -398,7 +408,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       return ListTile(
                         dense: true,
                         leading: const Icon(Icons.check_circle, color: Colors.green),
-                        title: Text(workoutEx.exercise.name),
+                        title: Text(workoutEx.exerciseName),
                         subtitle: Text(
                           '${workoutEx.sets} sets × ${workoutEx.reps} reps'
                           '${workoutEx.weight != null ? ' @ ${workoutEx.weight}kg' : ''}',
