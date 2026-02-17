@@ -3,8 +3,15 @@ import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/workouts/workouts_screen.dart';
 import 'screens/achievements/achievements_screen.dart';
 import 'screens/settings/settings_screen.dart';
+import 'services/storage_service.dart';
 
-void main() {
+void main() async {
+  // Ensure Flutter is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize storage
+  await StorageService.initialize();
+  
   runApp(const FitQuestApp());
 }
 
@@ -17,8 +24,8 @@ class FitQuestApp extends StatelessWidget {
       title: 'FitQuest',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        useMaterial3: false,          //  IMPORTANT: fixes bottom bar visibility
-        primarySwatch: Colors.blue,   //  Makes your app blue-themed
+        useMaterial3: false,          
+        primarySwatch: Colors.blue,   
       ),
       home: const HomeScreen(),
     );
