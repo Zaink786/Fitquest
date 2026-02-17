@@ -11,10 +11,9 @@ class ExerciseService {
 
     try {
       final String response = await rootBundle.loadString('assets/data/exercises.json');
-      final Map<String, dynamic> data = json.decode(response);
       
-      // The free-exercise-db has exercises in an "exercises" array
-      final List<dynamic> exercisesJson = data['exercises'] ?? [];
+      // The free-exercise-db JSON is a direct array, not an object with "exercises" key
+      final List<dynamic> exercisesJson = json.decode(response) as List;
       
       _cachedExercises = exercisesJson
           .map((json) => Exercise.fromJson(json))
@@ -136,6 +135,7 @@ class ExerciseService {
     final equipment = exercises
         .map((e) => e.equipment)
         .where((eq) => eq != null && eq.isNotEmpty)
+        .cast<String>()
         .toSet()
         .toList();
     equipment.sort();
