@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/google_fit_service.dart';
 import '../../services/points_service.dart';
 import '../../services/exercise_service.dart';
+import '../../services/storage_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -76,14 +77,16 @@ int _totalPoints = 0;
     });
 
     try {
-      // Steps from your (fake for now) GoogleFitService
-      final steps = await _googleFitService.getTodaySteps();
-      final stepPoints = PointsService.calculateStepPoints(steps);
+      // Load from storage instead of mock data
+      final steps = StorageService.getTodaySteps();
+      final points = StorageService.getTotalPoints();
+      final streak = StorageService.getCurrentStreak();
 
       setState(() {
         _todaySteps = steps;
-        _points = stepPoints;
-        _streakDays = 4; // still placeholder
+        _points = points;
+        _totalPoints = points;
+        _streakDays = streak;
         _isLoading = false;
       });
     } catch (e) {
