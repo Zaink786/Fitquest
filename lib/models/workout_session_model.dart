@@ -1,20 +1,66 @@
+import 'package:hive/hive.dart';
 import 'exercise_model.dart';
 
+part 'workout_session_model.g.dart';
+
 /// Represents a single exercise performed in a workout with sets, reps, and points
+@HiveType(typeId: 1)
 class WorkoutExercise {
-  final Exercise exercise;
+  @HiveField(0)
+  final String exerciseId;
+  
+  @HiveField(1)
+  final String exerciseName;
+  
+  @HiveField(2)
+  final String exerciseLevel;
+  
+  @HiveField(3)
   final int sets;
+  
+  @HiveField(4)
   final int reps;
-  final double? weight; // Optional weight in kg/lbs
+  
+  @HiveField(5)
+  final double? weight;
+  
+  @HiveField(6)
   final int pointsEarned;
 
   WorkoutExercise({
-    required this.exercise,
+    required this.exerciseId,
+    required this.exerciseName,
+    required this.exerciseLevel,
     required this.sets,
     required this.reps,
     this.weight,
     required this.pointsEarned,
   });
+
+  /// Create from Exercise object
+  factory WorkoutExercise.fromExercise({
+    required Exercise exercise,
+    required int sets,
+    required int reps,
+    double? weight,
+  }) {
+    final points = calculatePoints(
+      exercise: exercise,
+      sets: sets,
+      reps: reps,
+      weight: weight,
+    );
+
+    return WorkoutExercise(
+      exerciseId: exercise.id,
+      exerciseName: exercise.name,
+      exerciseLevel: exercise.level,
+      sets: sets,
+      reps: reps,
+      weight: weight,
+      pointsEarned: points,
+    );
+  }
 
   /// Calculate points for this exercise based on difficulty and volume
   static int calculatePoints({
@@ -41,37 +87,28 @@ class WorkoutExercise {
     
     return points;
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'exercise': exercise.toJson(),
-      'sets': sets,
-      'reps': reps,
-      'weight': weight,
-      'pointsEarned': pointsEarned,
-    };
-  }
-
-  factory WorkoutExercise.fromJson(Map<String, dynamic> json) {
-    return WorkoutExercise(
-      exercise: Exercise.fromJson(json['exercise']),
-      sets: json['sets'] ?? 0,
-      reps: json['reps'] ?? 0,
-      weight: json['weight'],
-      pointsEarned: json['pointsEarned'] ?? 0,
-    );
-  }
 }
 
 /// Represents a complete workout session with multiple exercises
-class WorkoutSession {
+@HiveType(typeId: 0)
+class WorkoutSession extends HiveObject {
+  @HiveField(0)
   final String id;
+  
+  @HiveField(1)
   final String name;
+  
+  @HiveField(2)
   final DateTime date;
+  
+  @HiveField(3)
   final List<WorkoutExercise> exercises;
+  
+  @HiveField(4)
   final int totalPoints;
-  final Duration? duration;
-  final String? notes;
+  
+  @HiveField(5)
+  final int? durationSeconds;
 
   WorkoutSession({
     required this.id,
@@ -79,8 +116,7 @@ class WorkoutSession {
     required this.date,
     required this.exercises,
     required this.totalPoints,
-    this.duration,
-    this.notes,
+    this.durationSeconds,
   });
 
   /// Calculate total points from all exercises in the session
@@ -90,8 +126,8 @@ class WorkoutSession {
 
   /// Get formatted duration string
   String getDurationDisplay() {
-    if (duration == null) return 'Not tracked';
-    final minutes = duration!.inMinutes;
+    if (durationSeconds == null) return 'Not tracked';
+    final minutes = durationSeconds! ~/ 60;
     if (minutes < 60) {
       return '$minutes min';
     } else {
@@ -99,33 +135,5 @@ class WorkoutSession {
       final remainingMinutes = minutes % 60;
       return '${hours}h ${remainingMinutes}m';
     }
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'date': date.toIso8601String(),
-      'exercises': exercises.map((e) => e.toJson()).toList(),
-      'totalPoints': totalPoints,
-      'duration': duration?.inSeconds,
-      'notes': notes,
-    };
-  }
-
-  factory WorkoutSession.fromJson(Map<String, dynamic> json) {
-    return WorkoutSession(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      date: DateTime.parse(json['date']),
-      exercises: (json['exercises'] as List)
-          .map((e) => WorkoutExercise.fromJson(e))
-          .toList(),
-      totalPoints: json['totalPoints'] ?? 0,
-      duration: json['duration'] != null 
-          ? Duration(seconds: json['duration']) 
-          : null,
-      notes: json['notes'],
-    );
   }
 }
