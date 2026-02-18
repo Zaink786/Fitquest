@@ -272,11 +272,17 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               // Save to storage
               await StorageService.saveWorkout(session);
               
-              // Add points
+              // Add points (both total and daily)
               await StorageService.addPoints(session.totalPoints);
+              await StorageService.addDailyPoints(session.totalPoints);
               
-              // Update streak
+              // Check achievements
+              await StorageService.checkFirstWorkoutAchievement();
+              
+              // Update streak and check streak achievement
               await StorageService.updateStreak();
+              final streak = StorageService.getCurrentStreak();
+              await StorageService.checkStreakAchievement(streak);
 
               setState(() {
                 _workoutSessions.add(session);
@@ -284,10 +290,18 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
               Navigator.pop(context);
 
+              // Check if achievement was just unlocked
+              final dailyPoints = StorageService.getDailyPoints();
+              String message = 'Workout logged! Earned ${session.totalPoints} points!';
+              if (dailyPoints >= 100 && StorageService.isAchievementUnlocked('first_100_points')) {
+                message += '\n🎉 Achievement Unlocked: Century Club!';
+              }
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Workout logged! Earned ${session.totalPoints} points!'),
+                  content: Text(message),
                   backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 4),
                 ),
               );
             },

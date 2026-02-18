@@ -12,6 +12,9 @@ class StorageService {
   static const String _lastActiveKey = 'last_active_date';
   static const String _stepsKey = 'today_steps';
   static const String _stepDateKey = 'step_date';
+  static const String _dailyPointsKey = 'daily_points';
+  static const String _dailyPointsDateKey = 'daily_points_date';
+  static const String _unlockedAchievementsKey = 'unlocked_achievements';
 
   /// Initialize storage - call this once at app startup
   static Future<void> initialize() async {
@@ -141,6 +144,76 @@ class StorageService {
 
   static Future<void> clearAllWorkouts() async {
     await _workoutsBox.clear();
+  }
+
+  // ==================== Daily Points ====================
+  
+  static int getDailyPoints() {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final savedDate = _prefs.getString(_dailyPointsDateKey);
+    
+    if (savedDate != todayStr) {
+      // New day - reset daily points
+      return 0;
+    }
+    
+    return _prefs.getInt(_dailyPointsKey) ?? 0;
+  }
+
+  static Future<void> addDailyPoints(int points) async {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final savedDate = _prefs.getString(_dailyPointsDateKey);
+    
+    int currentDailyPoints = 0;
+    if (savedDate == todayStr) {
+      currentDailyPoints = _prefs.getInt(_dailyPointsKey) ?? 0;
+    }
+    
+    final newDailyPoints = currentDailyPoints + points;
+    await _prefs.setInt(_dailyPointsKey, newDailyPoints);
+    await _prefs.setString(_dailyPointsDateKey, todayStr);
+    
+    // Check for 100 points achievement
+    await _checkDailyPointsAchievement(newDailyPoints);
+  }
+
+  static Future<void> _checkDailyPointsAchievement(int dailyPoints) async {
+    if (dailyPoints >= 100 && !isAchievementUnlocked('first_100_points')) {
+      await unlockAchievement('first_100_points');
+    }
+  }
+
+  // ==================== Achievements ====================
+  
+  static List<String> getUnlockedAchievements() {
+    return _prefs.getStringList(_unlockedAchievementsKey) ?? [];
+  }
+
+  static bool isAchievementUnlocked(String achievementId) {
+    final unlocked = getUnlockedAchievements();
+    return unlocked.contains(achievementId);
+  }
+
+  static Future<void> unlockAchievement(String achievementId) async {
+    final unlocked = getUnlockedAchievements();
+    if (!unlocked.contains(achievementId)) {
+      unlocked.add(achievementId);
+      await _prefs.setStringList(_unlockedAchievementsKey, unlocked);
+    }
+  }
+
+  static Future<void> checkFirstWorkoutAchievement() async {
+    if (!isAchievementUnlocked('first_workout')) {
+      await unlockAchievement('first_workout');
+    }
+  }
+
+  static Future<void> checkStreakAchievement(int streak) async {
+    if (streak >= 3 && !isAchievementUnlocked('consistency_starter')) {
+      await unlockAchievement('consistency_starter');
+    }
   }
 
   // ==================== Cleanup ====================
