@@ -76,11 +76,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                         : Colors.grey[300],
                   ),
                   child: Center(
-                    child: Text(
-                      achievement.icon,
-                      style: TextStyle(
-                        fontSize: 24,
-                        opacity: achievement.isUnlocked ? 1.0 : 0.4,
+                    child: Opacity(
+                      opacity: achievement.isUnlocked ? 1.0 : 0.4,
+                      child: Text(
+                        achievement.icon,
+                        style: const TextStyle(
+                          fontSize: 24,
+                        ),
                       ),
                     ),
                   ),
