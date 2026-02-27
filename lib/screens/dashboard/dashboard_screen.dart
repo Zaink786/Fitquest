@@ -18,8 +18,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
-  int _todaySteps = 0;
-  int _dailyGoal = 10000; // placeholder
   int _points = 0;
   int _streakDays = 4; // placeholder
   // New fields for level card
@@ -78,12 +76,10 @@ int _totalPoints = 0;
 
     try {
       // Load from storage instead of mock data
-      final steps = StorageService.getTodaySteps();
       final points = StorageService.getTotalPoints();
       final streak = StorageService.getCurrentStreak();
 
       setState(() {
-        _todaySteps = steps;
         _points = points;
         _totalPoints = points;
         _streakDays = streak;
@@ -112,8 +108,6 @@ int _totalPoints = 0;
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final double progress =
-        (_todaySteps / _dailyGoal).clamp(0.0, 1.0); // always 0–1
 
     return SafeArea(
       child: RefreshIndicator(
@@ -168,58 +162,6 @@ int _totalPoints = 0;
                   ),
                 ),
               ] else ...[
-                // Big steps card
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Today\'s steps',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '$_todaySteps',
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Goal: $_dailyGoal steps',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            minHeight: 10,
-                            backgroundColor: Colors.grey[200],
-                            valueColor:
-                                const AlwaysStoppedAnimation<Color>(Colors.blue),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
                 // Two small stat cards: Points + Streak
                 Row(
                   children: [
