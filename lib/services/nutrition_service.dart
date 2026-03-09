@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/food_model.dart';
@@ -13,28 +14,35 @@ class NutritionService {
     try {
       final String csv = await rootBundle
           .loadString('assets/data/daily_food_nutrition_dataset.csv');
-      final lines = csv.split('\n');
 
-      // Skip header row, filter out empty lines
-      _cachedFoods = lines
-          .skip(1)
-          .where((line) => line.trim().isNotEmpty)
-          .map((line) => FoodItem.fromCsvRow(line))
-          .where((f) => f.name.isNotEmpty && f.calories > 0)
-          .toList();
-
-      // De-duplicate by food name (keep the first occurrence)
-      final seen = <String>{};
-      _cachedFoods = _cachedFoods!.where((f) => seen.add(f.name)).toList();
-
-      // Sort alphabetically
-      _cachedFoods!.sort((a, b) => a.name.compareTo(b.name));
+      _cachedFoods = await Isolate.run(() => _parseCsv(csv));
 
       return _cachedFoods!;
     } catch (e) {
-      print('Error loading foods: $e');
-      throw Exception('Failed to load food database');
+      throw Exception('Failed to load food database: $e');
     }
+  }
+
+  static List<FoodItem> _parseCsv(String csv) {
+    final lines = csv.split('\n');
+    final List<FoodItem> foods = [];
+    final seen = <String>{};
+
+    for (int i = 1; i < lines.length; i++) {
+      final line = lines[i].trim();
+      if (line.isEmpty) continue;
+      try {
+        final food = FoodItem.fromCsvRow(line);
+        if (food.name.isNotEmpty && food.calories > 0 && seen.add(food.name)) {
+          foods.add(food);
+        }
+      } catch (_) {
+        continue;
+      }
+    }
+
+    foods.sort((a, b) => a.name.compareTo(b.name));
+    return foods;
   }
 
   /// Search foods by name
