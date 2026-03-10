@@ -65,7 +65,7 @@ class Exercise {
     };
   }
 
-  /// Flat points per workout — all exercises earn the same
+  ///  points per workout — all exercises earn the same
   int getBasePoints() {
     return 20;
   }

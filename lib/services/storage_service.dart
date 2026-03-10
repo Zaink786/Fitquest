@@ -16,6 +16,7 @@ class StorageService {
   static const String _dailyPointsKey = 'daily_points';
   static const String _dailyPointsDateKey = 'daily_points_date';
   static const String _unlockedAchievementsKey = 'unlocked_achievements';
+  static const String _calorieGoalMetDateKey = 'calorie_goal_met_date';
 
   /// Initialize storage - call this once at app startup
   static Future<void> initialize() async {
@@ -229,6 +230,25 @@ class StorageService {
     if (streak >= 3 && !isAchievementUnlocked('consistency_starter')) {
       await unlockAchievement('consistency_starter');
     }
+  }
+
+  // ==================== Calorie Goal ====================
+
+  /// Returns true if the calorie goal bonus was already awarded today.
+  static bool isCalorieGoalMetToday() {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    return _prefs.getString(_calorieGoalMetDateKey) == todayStr;
+  }
+
+  /// Mark calorie goal as met today and award +20 XP.
+  static Future<void> awardCalorieGoalBonus() async {
+    if (isCalorieGoalMetToday()) return; // already awarded today
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    await _prefs.setString(_calorieGoalMetDateKey, todayStr);
+    await addPoints(20);
+    await addDailyPoints(20);
   }
 
   // ==================== Cleanup ====================

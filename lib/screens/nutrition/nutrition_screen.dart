@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/food_model.dart';
 import '../../services/nutrition_service.dart';
+import '../../services/storage_service.dart';
 
 class NutritionScreen extends StatefulWidget {
   const NutritionScreen({super.key});
@@ -597,6 +598,15 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
     });
   }
 
+  /// Check if the user hit their 2000 kcal goal and award bonus XP once/day.
+  Future<void> _checkCalorieGoal() async {
+    final macros = await NutritionService.getTodaysMacros();
+    final consumed = macros['calories'] ?? 0;
+    if (consumed >= 2000 && !StorageService.isCalorieGoalMetToday()) {
+      await StorageService.awardCalorieGoalBonus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -803,6 +813,14 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
                   final entry = MealEntry.fromFood(
                       food, servings, widget.mealType);
                   await NutritionService.logMeal(entry);
+
+                  // +5 XP for logging a meal
+                  await StorageService.addPoints(5);
+                  await StorageService.addDailyPoints(5);
+
+                  // Check calorie goal after this meal
+                  await _checkCalorieGoal();
+
                   widget.onFoodLogged();
                   if (ctx.mounted) Navigator.pop(ctx);
                   if (mounted) {

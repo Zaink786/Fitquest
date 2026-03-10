@@ -62,7 +62,7 @@ class WorkoutExercise {
     );
   }
 
-  /// Flat 20 points per workout logged
+  ///  20 points per workout logged
   static int calculatePoints({
     required Exercise exercise,
     required int sets,
