@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../services/google_fit_service.dart';
-import '../../services/points_service.dart';
 import '../../services/exercise_service.dart';
 import '../../services/storage_service.dart';
+import '../../models/level_model.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -12,22 +11,18 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final GoogleFitService _googleFitService = GoogleFitService();
   final ExerciseService _exerciseService = ExerciseService();
 
   bool _isLoading = true;
   String? _errorMessage;
 
   int _points = 0;
-  int _streakDays = 4; // placeholder
-  // New fields for level card
-int _totalPoints = 0;
-  int _currentLevel = 1;
-  double _levelProgress = 0.0;
-  
+  int _streakDays = 0;
+  late LevelInfo _levelInfo;
+
   // Exercise database stats
   int _totalExercises = 0;
-  int _totalCategories = 0; 
+  int _totalCategories = 0;
 
   String _formatDate(DateTime date) {
     const weekdays = [
@@ -75,14 +70,15 @@ int _totalPoints = 0;
     });
 
     try {
-      // Load from storage instead of mock data
+      // Load from storage
       final points = StorageService.getTotalPoints();
       final streak = StorageService.getCurrentStreak();
+      final levelInfo = StorageService.getLevelInfo();
 
       setState(() {
         _points = points;
-        _totalPoints = points;
         _streakDays = streak;
+        _levelInfo = levelInfo;
         _isLoading = false;
       });
     } catch (e) {
@@ -162,7 +158,89 @@ int _totalPoints = 0;
                   ),
                 ),
               ] else ...[
-                // Two small stat cards: Points + Streak
+                // Level card
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${_levelInfo.level}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Level ${_levelInfo.level}',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$_points XP total',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: LinearProgressIndicator(
+                            value: _levelInfo.progress,
+                            minHeight: 10,
+                            backgroundColor: Colors.grey[200],
+                            valueColor: const AlwaysStoppedAnimation(
+                              Colors.blue,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${_levelInfo.xpIntoLevel} / ${_levelInfo.xpForNextLevel} XP to next level',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Two small stat cards: Daily XP + Streak
                 Row(
                   children: [
                     Expanded(
@@ -179,14 +257,14 @@ int _totalPoints = 0;
                               const Icon(Icons.star, color: Colors.amber),
                               const SizedBox(height: 8),
                               const Text(
-                                'Points',
+                                'Today\'s XP',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '$_points',
+                                '${StorageService.getDailyPoints()}',
                                 style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -313,9 +391,9 @@ int _totalPoints = 0;
 
                 const SizedBox(height: 16),
 
-                // Recent activity
+                // How to earn XP
                 const Text(
-                  'Recent activity',
+                  'How to earn XP',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -326,11 +404,44 @@ int _totalPoints = 0;
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const ListTile(
-                    leading: Icon(Icons.directions_walk),
-                    title: Text('Evening walk'),
-                    subtitle: Text('40 mins • 2,000 steps'),
-                    trailing: Text('+40 pts'),
+                  child: const Column(
+                    children: [
+                      ListTile(
+                        dense: true,
+                        leading: Icon(Icons.fitness_center, color: Colors.blue),
+                        title: Text('Log a workout'),
+                        trailing: Text('+20 XP',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      ListTile(
+                        dense: true,
+                        leading: Icon(Icons.restaurant_menu, color: Colors.green),
+                        title: Text('Log a meal'),
+                        trailing: Text('+5 XP',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      ListTile(
+                        dense: true,
+                        leading: Icon(Icons.local_fire_department, color: Colors.orange),
+                        title: Text('Maintain streak'),
+                        trailing: Text('+10 XP/day',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      ListTile(
+                        dense: true,
+                        leading: Icon(Icons.emoji_events, color: Colors.amber),
+                        title: Text('Hit calorie goal'),
+                        trailing: Text('+20 XP',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      ListTile(
+                        dense: true,
+                        leading: Icon(Icons.military_tech, color: Colors.purple),
+                        title: Text('Unlock achievement'),
+                        trailing: Text('+30 XP',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
                   ),
                 ),
               ],
