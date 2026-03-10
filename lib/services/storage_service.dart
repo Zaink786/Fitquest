@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/workout_session_model.dart';
+import '../models/level_model.dart';
 
 class StorageService {
   static late SharedPreferences _prefs;
@@ -51,6 +52,13 @@ class StorageService {
     await setTotalPoints(current + points);
   }
 
+  // ==================== Level System ====================
+
+  /// Get the user's current level info based on total points.
+  static LevelInfo getLevelInfo() {
+    return LevelSystem.fromTotalXp(getTotalPoints());
+  }
+
   // ==================== Streak ====================
   
   static int getCurrentStreak() {
@@ -92,7 +100,11 @@ class StorageService {
 
     if (daysDiff == 1) {
       // Consecutive day - increase streak
-      await setStreak(getCurrentStreak() + 1);
+      final newStreak = getCurrentStreak() + 1;
+      await setStreak(newStreak);
+      // +10 XP for maintaining a streak
+      await addPoints(10);
+      await addDailyPoints(10);
     } else if (daysDiff > 1) {
       // Missed days - reset streak
       await setStreak(1);
@@ -201,6 +213,9 @@ class StorageService {
     if (!unlocked.contains(achievementId)) {
       unlocked.add(achievementId);
       await _prefs.setStringList(_unlockedAchievementsKey, unlocked);
+      // +30 XP for unlocking any achievement
+      await addPoints(30);
+      await addDailyPoints(30);
     }
   }
 

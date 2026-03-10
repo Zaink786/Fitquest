@@ -65,18 +65,9 @@ class Exercise {
     };
   }
 
-  /// Calculate base points based on exercise difficulty level
+  /// Flat points per workout — all exercises earn the same
   int getBasePoints() {
-    switch (level.toLowerCase()) {
-      case 'beginner':
-        return 10;
-      case 'intermediate':
-        return 20;
-      case 'expert':
-        return 30;
-      default:
-        return 15;
-    }
+    return 20;
   }
 
   /// Get a display-friendly primary muscles string

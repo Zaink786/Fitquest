@@ -168,7 +168,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                             ],
                           ),
                           trailing: Chip(
-                            label: Text('${exercise.getBasePoints()} pts'),
+                            label: const Text('20 pts'),
                             backgroundColor: Colors.blue.withOpacity(0.2),
                           ),
                           onTap: () {

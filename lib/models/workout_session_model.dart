@@ -62,30 +62,14 @@ class WorkoutExercise {
     );
   }
 
-  /// Calculate points for this exercise based on difficulty and volume
+  /// Flat 20 points per workout logged
   static int calculatePoints({
     required Exercise exercise,
     required int sets,
     required int reps,
     double? weight,
   }) {
-    int basePoints = exercise.getBasePoints();
-    int totalReps = sets * reps;
-    
-    // Base calculation: basePoints * sets
-    int points = basePoints * sets;
-    
-    // Bonus for high volume (more than 50 total reps)
-    if (totalReps > 50) {
-      points = (points * 1.2).round();
-    }
-    
-    // Bonus for using weights
-    if (weight != null && weight > 0) {
-      points = (points * 1.1).round();
-    }
-    
-    return points;
+    return 20;
   }
 }
 
