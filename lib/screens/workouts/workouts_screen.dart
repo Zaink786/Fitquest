@@ -19,6 +19,13 @@ class WorkoutsScreen extends StatefulWidget {
 
 class _WorkoutsScreenState extends State<WorkoutsScreen> {
   final ExerciseService _exerciseService = ExerciseService();
+  static const List<String> _planTemplates = [
+    'Push',
+    'Pull',
+    'Legs',
+    'Upper',
+    'Full Body',
+  ];
 
   List<Routine> _routines = [];
   List<Exercise> _allExercises = [];
@@ -209,13 +216,19 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
   // ── Routines ───────────────────────────────────────────────────────────────
 
-  Future<void> _openRoutineForm({Routine? existing}) async {
+  Future<void> _openRoutineForm({
+    Routine? existing,
+    String? initialName,
+    List<RoutineExercise>? initialExercises,
+  }) async {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (ctx) => _RoutineFormSheet(
         existing: existing,
+        initialName: initialName,
+        initialExercises: initialExercises,
         allExercises: _allExercises,
         onSave: (routine) async {
           await RoutineService.saveRoutine(routine);
@@ -250,6 +263,119 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       await RoutineService.deleteRoutine(routine.id);
       await _loadData();
     }
+  }
+
+  Future<void> _createTemplatePlan(String templateName) async {
+    final existingRoutine = _routines.cast<Routine?>().firstWhere(
+          (routine) =>
+              routine != null &&
+              routine.name.toLowerCase() == templateName.toLowerCase(),
+          orElse: () => null,
+        );
+
+    if (existingRoutine != null) {
+      await _openRoutineForm(existing: existingRoutine);
+      return;
+    }
+
+    await _openRoutineForm(
+      initialName: templateName,
+      initialExercises: _buildTemplateExercises(templateName),
+    );
+  }
+
+  List<RoutineExercise> _buildTemplateExercises(String templateName) {
+    List<Exercise> selected;
+
+    switch (templateName.toLowerCase()) {
+      case 'push':
+        selected = _pickExercisesForMuscles(
+          const ['chest', 'shoulders', 'triceps'],
+          targetCount: 6,
+        );
+        break;
+      case 'pull':
+        selected = _pickExercisesForMuscles(
+          const ['lats', 'middle back', 'lower back', 'traps', 'biceps'],
+          targetCount: 6,
+        );
+        break;
+      case 'legs':
+        selected = _pickExercisesForMuscles(
+          const ['quadriceps', 'hamstrings', 'glutes', 'calves'],
+          targetCount: 6,
+        );
+        break;
+      case 'upper':
+        selected = _pickExercisesForMuscles(
+          const ['chest', 'lats', 'middle back', 'shoulders', 'biceps', 'triceps'],
+          targetCount: 8,
+        );
+        break;
+      case 'full body':
+        selected = _pickExercisesForMuscles(
+          const ['quadriceps', 'hamstrings', 'chest', 'lats', 'shoulders', 'abdominals'],
+          targetCount: 8,
+        );
+        break;
+      default:
+        selected = _allExercises.take(6).toList();
+    }
+
+    return selected
+        .map(
+          (exercise) => RoutineExercise(
+            exerciseId: exercise.id,
+            exerciseName: exercise.name,
+          ),
+        )
+        .toList();
+  }
+
+  List<Exercise> _pickExercisesForMuscles(
+    List<String> muscleHints, {
+    required int targetCount,
+  }) {
+    final picked = <Exercise>[];
+    final seenIds = <String>{};
+
+    for (final hint in muscleHints) {
+      for (final exercise in _allExercises) {
+        if (seenIds.contains(exercise.id)) {
+          continue;
+        }
+
+        final primary = exercise.primaryMuscles.map((m) => m.toLowerCase());
+        final secondary = exercise.secondaryMuscles.map((m) => m.toLowerCase());
+        final matches = primary.any((m) => m.contains(hint)) ||
+            secondary.any((m) => m.contains(hint));
+
+        if (!matches) {
+          continue;
+        }
+
+        seenIds.add(exercise.id);
+        picked.add(exercise);
+        break;
+      }
+
+      if (picked.length >= targetCount) {
+        break;
+      }
+    }
+
+    if (picked.length < targetCount) {
+      for (final exercise in _allExercises) {
+        if (seenIds.add(exercise.id)) {
+          picked.add(exercise);
+        }
+        if (picked.length >= targetCount) {
+          break;
+        }
+      }
+    }
+
+    return picked;
   }
 
   Future<void> _startRoutine(Routine routine) async {
@@ -380,6 +506,23 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
+                    SizedBox(
+                      height: 42,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _planTemplates.length,
+                        separatorBuilder: (_, index) =>
+                            const SizedBox(width: 8),
+                        itemBuilder: (_, index) {
+                          final plan = _planTemplates[index];
+                          return _PlanTemplateChip(
+                            label: plan,
+                            onTap: () => _createTemplatePlan(plan),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
                     // ── Empty state ──────────────────────────────
                     if (_routines.isEmpty)
@@ -653,17 +796,64 @@ class _RoutineCard extends StatelessWidget {
   }
 }
 
+class _PlanTemplateChip extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _PlanTemplateChip({
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.blue.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: Colors.blue.withValues(alpha: 0.25)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.add_circle_outline, size: 16, color: Colors.blue),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Create / Edit routine bottom sheet
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _RoutineFormSheet extends StatefulWidget {
   final Routine? existing;
+  final String? initialName;
+  final List<RoutineExercise>? initialExercises;
   final List<Exercise> allExercises;
   final Future<void> Function(Routine) onSave;
 
   const _RoutineFormSheet({
     this.existing,
+    this.initialName,
+    this.initialExercises,
     required this.allExercises,
     required this.onSave,
   });
@@ -684,6 +874,17 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
       _nameCtrl.text = widget.existing!.name;
       // Deep-copy so edits don't touch the originals until saved
       _exercises = widget.existing!.exercises
+          .map((e) => RoutineExercise(
+                exerciseId: e.exerciseId,
+                exerciseName: e.exerciseName,
+                sets: e.sets,
+                reps: e.reps,
+                weight: e.weight,
+              ))
+          .toList();
+    } else {
+      _nameCtrl.text = widget.initialName ?? '';
+      _exercises = (widget.initialExercises ?? [])
           .map((e) => RoutineExercise(
                 exerciseId: e.exerciseId,
                 exerciseName: e.exerciseName,
