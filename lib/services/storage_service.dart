@@ -159,6 +159,20 @@ class StorageService {
     await _workoutsBox.clear();
   }
 
+  /// Returns the most recent [WorkoutSession] that contains an exercise
+  /// matching [exerciseId], sorted by date descending.
+  /// Returns null if no history exists for this exercise.
+  static WorkoutSession? getLastSessionForExercise(String exerciseId) {
+    final sessions = getAllWorkouts()
+      ..sort((a, b) => b.date.compareTo(a.date));
+    for (final session in sessions) {
+      if (session.exercises.any((ex) => ex.exerciseId == exerciseId)) {
+        return session;
+      }
+    }
+    return null;
+  }
+
   // ==================== Daily Points ====================
   
   static int getDailyPoints() {
