@@ -3,6 +3,7 @@ import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/workouts/workouts_screen.dart';
 import 'screens/achievements/achievements_screen.dart';
 import 'screens/settings/settings_screen.dart';
+import 'screens/nutrition/nutrition_screen.dart';
 import 'services/storage_service.dart';
 
 void main() async {
@@ -45,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = const [
     DashboardScreen(),
     WorkoutsScreen(),
+    NutritionScreen(),
     AchievementsScreen(),
     SettingsScreen(),
   ];
@@ -80,6 +82,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.fitness_center),
             label: 'Workouts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.restaurant_menu),
+            label: 'Nutrition',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.emoji_events),

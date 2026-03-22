@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/workout_session_model.dart';
+import '../models/level_model.dart';
 
 class StorageService {
   static late SharedPreferences _prefs;
@@ -12,6 +13,10 @@ class StorageService {
   static const String _lastActiveKey = 'last_active_date';
   static const String _stepsKey = 'today_steps';
   static const String _stepDateKey = 'step_date';
+  static const String _dailyPointsKey = 'daily_points';
+  static const String _dailyPointsDateKey = 'daily_points_date';
+  static const String _unlockedAchievementsKey = 'unlocked_achievements';
+  static const String _calorieGoalMetDateKey = 'calorie_goal_met_date';
 
   /// Initialize storage - call this once at app startup
   static Future<void> initialize() async {
@@ -46,6 +51,13 @@ class StorageService {
   static Future<void> addPoints(int points) async {
     final current = getTotalPoints();
     await setTotalPoints(current + points);
+  }
+
+  // ==================== Level System ====================
+
+  /// Get the user's current level info based on total points.
+  static LevelInfo getLevelInfo() {
+    return LevelSystem.fromTotalXp(getTotalPoints());
   }
 
   // ==================== Streak ====================
@@ -89,7 +101,11 @@ class StorageService {
 
     if (daysDiff == 1) {
       // Consecutive day - increase streak
-      await setStreak(getCurrentStreak() + 1);
+      final newStreak = getCurrentStreak() + 1;
+      await setStreak(newStreak);
+      // +10 XP for maintaining a streak
+      await addPoints(10);
+      await addDailyPoints(10);
     } else if (daysDiff > 1) {
       // Missed days - reset streak
       await setStreak(1);
@@ -141,6 +157,98 @@ class StorageService {
 
   static Future<void> clearAllWorkouts() async {
     await _workoutsBox.clear();
+  }
+
+  // ==================== Daily Points ====================
+  
+  static int getDailyPoints() {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final savedDate = _prefs.getString(_dailyPointsDateKey);
+    
+    if (savedDate != todayStr) {
+      // New day - reset daily points
+      return 0;
+    }
+    
+    return _prefs.getInt(_dailyPointsKey) ?? 0;
+  }
+
+  static Future<void> addDailyPoints(int points) async {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final savedDate = _prefs.getString(_dailyPointsDateKey);
+    
+    int currentDailyPoints = 0;
+    if (savedDate == todayStr) {
+      currentDailyPoints = _prefs.getInt(_dailyPointsKey) ?? 0;
+    }
+    
+    final newDailyPoints = currentDailyPoints + points;
+    await _prefs.setInt(_dailyPointsKey, newDailyPoints);
+    await _prefs.setString(_dailyPointsDateKey, todayStr);
+    
+    // Check for 100 points achievement
+    await _checkDailyPointsAchievement(newDailyPoints);
+  }
+
+  static Future<void> _checkDailyPointsAchievement(int dailyPoints) async {
+    if (dailyPoints >= 100 && !isAchievementUnlocked('first_100_points')) {
+      await unlockAchievement('first_100_points');
+    }
+  }
+
+  // ==================== Achievements ====================
+  
+  static List<String> getUnlockedAchievements() {
+    return _prefs.getStringList(_unlockedAchievementsKey) ?? [];
+  }
+
+  static bool isAchievementUnlocked(String achievementId) {
+    final unlocked = getUnlockedAchievements();
+    return unlocked.contains(achievementId);
+  }
+
+  static Future<void> unlockAchievement(String achievementId) async {
+    final unlocked = getUnlockedAchievements();
+    if (!unlocked.contains(achievementId)) {
+      unlocked.add(achievementId);
+      await _prefs.setStringList(_unlockedAchievementsKey, unlocked);
+      // +30 XP for unlocking any achievement
+      await addPoints(30);
+      await addDailyPoints(30);
+    }
+  }
+
+  static Future<void> checkFirstWorkoutAchievement() async {
+    if (!isAchievementUnlocked('first_workout')) {
+      await unlockAchievement('first_workout');
+    }
+  }
+
+  static Future<void> checkStreakAchievement(int streak) async {
+    if (streak >= 3 && !isAchievementUnlocked('consistency_starter')) {
+      await unlockAchievement('consistency_starter');
+    }
+  }
+
+  // ==================== Calorie Goal ====================
+
+  /// Returns true if the calorie goal bonus was already awarded today.
+  static bool isCalorieGoalMetToday() {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    return _prefs.getString(_calorieGoalMetDateKey) == todayStr;
+  }
+
+  /// Mark calorie goal as met today and award +20 XP.
+  static Future<void> awardCalorieGoalBonus() async {
+    if (isCalorieGoalMetToday()) return; // already awarded today
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    await _prefs.setString(_calorieGoalMetDateKey, todayStr);
+    await addPoints(20);
+    await addDailyPoints(20);
   }
 
   // ==================== Cleanup ====================
