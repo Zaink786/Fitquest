@@ -20,7 +20,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   void _loadAchievements() {
     final unlockedIds = StorageService.getUnlockedAchievements();
-    
+
     setState(() {
       _achievements = Achievements.allAchievements.map((achievement) {
         final isUnlocked = unlockedIds.contains(achievement.id);
@@ -32,7 +32,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   @override
   Widget build(BuildContext context) {
     final unlockedCount = _achievements.where((a) => a.isUnlocked).length;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Achievements'),
@@ -59,7 +59,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         child: ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: _achievements.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final achievement = _achievements[index];
             return Card(
@@ -71,8 +71,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   height: 48,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: achievement.isUnlocked 
-                        ? Colors.amber[100] 
+                    color: achievement.isUnlocked
+                        ? Colors.amber[100]
                         : Colors.grey[300],
                   ),
                   child: Center(
@@ -80,9 +80,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                       opacity: achievement.isUnlocked ? 1.0 : 0.4,
                       child: Text(
                         achievement.icon,
-                        style: const TextStyle(
-                          fontSize: 24,
-                        ),
+                        style: const TextStyle(fontSize: 24),
                       ),
                     ),
                   ),
@@ -91,7 +89,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   achievement.title,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: achievement.isUnlocked ? Colors.black : Colors.grey[600],
+                    color: achievement.isUnlocked
+                        ? Colors.black
+                        : Colors.grey[600],
                   ),
                 ),
                 subtitle: Column(
@@ -101,7 +101,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     Text(
                       achievement.description,
                       style: TextStyle(
-                        color: achievement.isUnlocked ? Colors.black87 : Colors.grey[500],
+                        color: achievement.isUnlocked
+                            ? Colors.black87
+                            : Colors.grey[500],
                       ),
                     ),
                     if (achievement.targetValue != null)

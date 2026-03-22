@@ -68,75 +68,108 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
   void _showExercisePicker(List<Exercise> exercises, String title) {
     if (exercises.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No exercises found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No exercises found')));
       return;
     }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.92,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (_, scrollCtrl) => Column(
-          children: [
-            const SizedBox(height: 8),
-            _sheetHandle(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
-              child: Row(
+      builder: (ctx) {
+        String query = '';
+        return StatefulBuilder(
+          builder: (ctx, setState) {
+            final filtered = query.isEmpty
+                ? exercises
+                : exercises
+                      .where(
+                        (e) =>
+                            e.name.toLowerCase().contains(query.toLowerCase()),
+                      )
+                      .toList();
+            return DraggableScrollableSheet(
+              initialChildSize: 0.92,
+              minChildSize: 0.5,
+              maxChildSize: 0.95,
+              expand: false,
+              builder: (_, scrollCtrl) => Column(
                 children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-                  const Spacer(),
-                  IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(ctx)),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text('${exercises.length} exercises available',
-                  style: TextStyle(color: Colors.grey[600])),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollCtrl,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: exercises.length,
-                itemBuilder: (_, i) {
-                  final ex = exercises[i];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      title: Text(ex.name,
-                          style:
-                              const TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: Text(
-                          '${ex.getPrimaryMusclesDisplay()} · ${ex.getEquipmentDisplay()}'),
-                      trailing: const Text('+20 XP',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue)),
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _logAdHocExercise(ex);
+                  const SizedBox(height: 8),
+                  _sheetHandle(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+                    child: Row(
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Search exercises…',
+                        prefixIcon: Icon(Icons.search),
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (v) => setState(() => query = v),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollCtrl,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) {
+                        final ex = filtered[i];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            title: Text(
+                              ex.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '${ex.getPrimaryMusclesDisplay()} · ${ex.getEquipmentDisplay()}',
+                            ),
+                            trailing: const Text(
+                              '+20 XP',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              _logAdHocExercise(ex);
+                            },
+                          ),
+                        );
                       },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -148,29 +181,29 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(exercise.name,
-            style: const TextStyle(fontSize: 18)),
+        title: Text(exercise.name, style: const TextStyle(fontSize: 18)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                  '${exercise.getPrimaryMusclesDisplay()} · ${_cap(exercise.level)}',
-                  style: TextStyle(color: Colors.grey[700])),
+                '${exercise.getPrimaryMusclesDisplay()} · ${_cap(exercise.level)}',
+                style: TextStyle(color: Colors.grey[700]),
+              ),
               const SizedBox(height: 16),
               _numField(setsCtrl, 'Sets'),
               const SizedBox(height: 12),
               _numField(repsCtrl, 'Reps per Set'),
               const SizedBox(height: 12),
-              _numField(weightCtrl, 'Weight (kg) – optional',
-                  decimal: true),
+              _numField(weightCtrl, 'Weight (kg) – optional', decimal: true),
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () async {
               final sets = int.tryParse(setsCtrl.text) ?? 3;
@@ -178,10 +211,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               final weight = double.tryParse(weightCtrl.text);
 
               final workoutEx = WorkoutExercise.fromExercise(
-                  exercise: exercise,
-                  sets: sets,
-                  reps: reps,
-                  weight: weight);
+                exercise: exercise,
+                sets: sets,
+                reps: reps,
+                weight: weight,
+              );
               final session = WorkoutSession(
                 id: DateTime.now().millisecondsSinceEpoch.toString(),
                 name: '${exercise.category} Workout',
@@ -195,16 +229,20 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               await StorageService.checkFirstWorkoutAchievement();
               await StorageService.updateStreak();
               await StorageService.checkStreakAchievement(
-                  StorageService.getCurrentStreak());
+                StorageService.getCurrentStreak(),
+              );
 
               if (ctx.mounted) Navigator.pop(ctx);
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(
-                      '${exercise.name} logged! +${session.totalPoints} XP'),
-                  backgroundColor: Colors.green,
-                  duration: const Duration(seconds: 3),
-                ));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      '${exercise.name} logged! +${session.totalPoints} XP',
+                    ),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
               }
             },
             child: const Text('Log Workout'),
@@ -244,15 +282,14 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Routine'),
-        content:
-            Text('Delete "${routine.name}"? This cannot be undone.'),
+        content: Text('Delete "${routine.name}"? This cannot be undone.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
-            style:
-                ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete'),
           ),
@@ -267,11 +304,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
   Future<void> _createTemplatePlan(String templateName) async {
     final existingRoutine = _routines.cast<Routine?>().firstWhere(
-          (routine) =>
-              routine != null &&
-              routine.name.toLowerCase() == templateName.toLowerCase(),
-          orElse: () => null,
-        );
+      (routine) =>
+          routine != null &&
+          routine.name.toLowerCase() == templateName.toLowerCase(),
+      orElse: () => null,
+    );
 
     if (existingRoutine != null) {
       await _openRoutineForm(existing: existingRoutine);
@@ -289,34 +326,48 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
     switch (templateName.toLowerCase()) {
       case 'push':
-        selected = _pickExercisesForMuscles(
-          const ['chest', 'shoulders', 'triceps'],
-          targetCount: 6,
-        );
+        selected = _pickExercisesForMuscles(const [
+          'chest',
+          'shoulders',
+          'triceps',
+        ], targetCount: 6);
         break;
       case 'pull':
-        selected = _pickExercisesForMuscles(
-          const ['lats', 'middle back', 'lower back', 'traps', 'biceps'],
-          targetCount: 6,
-        );
+        selected = _pickExercisesForMuscles(const [
+          'lats',
+          'middle back',
+          'lower back',
+          'traps',
+          'biceps',
+        ], targetCount: 6);
         break;
       case 'legs':
-        selected = _pickExercisesForMuscles(
-          const ['quadriceps', 'hamstrings', 'glutes', 'calves'],
-          targetCount: 6,
-        );
+        selected = _pickExercisesForMuscles(const [
+          'quadriceps',
+          'hamstrings',
+          'glutes',
+          'calves',
+        ], targetCount: 6);
         break;
       case 'upper':
-        selected = _pickExercisesForMuscles(
-          const ['chest', 'lats', 'middle back', 'shoulders', 'biceps', 'triceps'],
-          targetCount: 8,
-        );
+        selected = _pickExercisesForMuscles(const [
+          'chest',
+          'lats',
+          'middle back',
+          'shoulders',
+          'biceps',
+          'triceps',
+        ], targetCount: 8);
         break;
       case 'full body':
-        selected = _pickExercisesForMuscles(
-          const ['quadriceps', 'hamstrings', 'chest', 'lats', 'shoulders', 'abdominals'],
-          targetCount: 8,
-        );
+        selected = _pickExercisesForMuscles(const [
+          'quadriceps',
+          'hamstrings',
+          'chest',
+          'lats',
+          'shoulders',
+          'abdominals',
+        ], targetCount: 8);
         break;
       default:
         selected = _allExercises.take(6).toList();
@@ -347,7 +398,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
         final primary = exercise.primaryMuscles.map((m) => m.toLowerCase());
         final secondary = exercise.secondaryMuscles.map((m) => m.toLowerCase());
-        final matches = primary.any((m) => m.contains(hint)) ||
+        final matches =
+            primary.any((m) => m.contains(hint)) ||
             secondary.any((m) => m.contains(hint));
 
         if (!matches) {
@@ -381,22 +433,22 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   Future<void> _startRoutine(Routine routine) async {
     if (routine.exercises.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('Add exercises to this routine first')),
+        const SnackBar(content: Text('Add exercises to this routine first')),
       );
       return;
     }
     final workoutExercises = routine.exercises
-        .map((re) => WorkoutExercise(
-              exerciseId: re.exerciseId,
-              exerciseName: re.exerciseName,
-              exerciseLevel: 'intermediate',
-              sets: re.sets,
-              reps: re.reps,
-              weight: re.weight,
-              pointsEarned: 20,
-            ))
+        .map(
+          (re) => WorkoutExercise(
+            exerciseId: re.exerciseId,
+            exerciseName: re.exerciseName,
+            exerciseLevel: 'intermediate',
+            sets: re.sets,
+            reps: re.reps,
+            weight: re.weight,
+            pointsEarned: 20,
+          ),
+        )
         .toList();
     final session = WorkoutSession(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -411,15 +463,19 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     await StorageService.checkFirstWorkoutAchievement();
     await StorageService.updateStreak();
     await StorageService.checkStreakAchievement(
-        StorageService.getCurrentStreak());
+      StorageService.getCurrentStreak(),
+    );
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-            '${routine.name} complete! +${session.totalPoints} XP 💪'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 4),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${routine.name} complete! +${session.totalPoints} XP 💪',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4),
+        ),
+      );
     }
   }
 
@@ -429,23 +485,28 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       t.isEmpty ? t : t[0].toUpperCase() + t.substring(1);
 
   static Widget _sheetHandle() => Container(
-        width: 40,
-        height: 4,
-        decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(2)),
-      );
+    width: 40,
+    height: 4,
+    decoration: BoxDecoration(
+      color: Colors.grey[300],
+      borderRadius: BorderRadius.circular(2),
+    ),
+  );
 
-  static TextField _numField(TextEditingController ctrl, String label,
-          {bool decimal = false}) =>
-      TextField(
-        controller: ctrl,
-        keyboardType: decimal
-            ? const TextInputType.numberWithOptions(decimal: true)
-            : TextInputType.number,
-        decoration: InputDecoration(
-            labelText: label, border: const OutlineInputBorder()),
-      );
+  static TextField _numField(
+    TextEditingController ctrl,
+    String label, {
+    bool decimal = false,
+  }) => TextField(
+    controller: ctrl,
+    keyboardType: decimal
+        ? const TextInputType.numberWithOptions(decimal: true)
+        : TextInputType.number,
+    decoration: InputDecoration(
+      labelText: label,
+      border: const OutlineInputBorder(),
+    ),
+  );
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
@@ -462,10 +523,13 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── New Workout ──────────────────────────────
-                    const Text('New Workout',
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold)),
+                    const Text(
+                      'New Workout',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     _NewWorkoutCard(
                       label: 'Start Empty Workout',
@@ -484,22 +548,29 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
                     // ── Routines header ──────────────────────────
                     Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Routines',
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Routines',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         Row(
                           children: [
-                            Icon(Icons.folder_outlined,
-                                color: Colors.grey[600]),
+                            Icon(
+                              Icons.folder_outlined,
+                              color: Colors.grey[600],
+                            ),
                             const SizedBox(width: 6),
                             GestureDetector(
                               onTap: () => _openRoutineForm(),
-                              child: const Icon(Icons.add,
-                                  color: Colors.blue, size: 28),
+                              child: const Icon(
+                                Icons.add,
+                                color: Colors.blue,
+                                size: 28,
+                              ),
                             ),
                           ],
                         ),
@@ -528,18 +599,22 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     if (_routines.isEmpty)
                       Center(
                         child: Padding(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 32),
+                          padding: const EdgeInsets.symmetric(vertical: 32),
                           child: Column(
                             children: [
-                              Icon(Icons.folder_open,
-                                  size: 52,
-                                  color: Colors.grey[400]),
+                              Icon(
+                                Icons.folder_open,
+                                size: 52,
+                                color: Colors.grey[400],
+                              ),
                               const SizedBox(height: 12),
-                              Text('No routines yet',
-                                  style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 16)),
+                              Text(
+                                'No routines yet',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 16,
+                                ),
+                              ),
                               const SizedBox(height: 16),
                               ElevatedButton.icon(
                                 onPressed: () => _openRoutineForm(),
@@ -553,13 +628,15 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     else ...[
                       // ── Collapsible group header ─────────────
                       InkWell(
-                        onTap: () => setState(() =>
-                            _isRoutinesExpanded =
-                                !_isRoutinesExpanded),
+                        onTap: () => setState(
+                          () => _isRoutinesExpanded = !_isRoutinesExpanded,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.grey[100],
                             borderRadius: BorderRadius.circular(12),
@@ -576,8 +653,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                               Text(
                                 'My Routines (${_routines.length})',
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
                               ),
                             ],
                           ),
@@ -587,13 +665,14 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       // ── Routine cards ────────────────────────
                       if (_isRoutinesExpanded) ...[
                         const SizedBox(height: 10),
-                        ..._routines.map((r) => _RoutineCard(
-                              routine: r,
-                              onEdit: () =>
-                                  _openRoutineForm(existing: r),
-                              onDelete: () => _deleteRoutine(r),
-                              onStart: () => _startRoutine(r),
-                            )),
+                        ..._routines.map(
+                          (r) => _RoutineCard(
+                            routine: r,
+                            onEdit: () => _openRoutineForm(existing: r),
+                            onDelete: () => _deleteRoutine(r),
+                            onStart: () => _startRoutine(r),
+                          ),
+                        ),
                       ],
                     ],
                   ],
@@ -628,22 +707,23 @@ class _NewWorkoutCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
       child: Container(
         width: double.infinity,
-        padding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
-          border:
-              Border.all(color: color.withValues(alpha: 0.35), width: 1.5),
+          border: Border.all(color: color.withValues(alpha: 0.35), width: 1.5),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
             Expanded(
-              child: Text(label,
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: color)),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
             ),
             Icon(icon, size: 42, color: color.withValues(alpha: 0.75)),
           ],
@@ -679,11 +759,9 @@ class _RoutineCard extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 12),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -694,14 +772,18 @@ class _RoutineCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(routine.name,
-                          style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold)),
+                      Text(
+                        routine.name,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text('${routine.totalSets} sets',
-                          style: TextStyle(
-                              color: Colors.grey[600], fontSize: 13)),
+                      Text(
+                        '${routine.totalSets} sets',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                      ),
                     ],
                   ),
                 ),
@@ -712,13 +794,14 @@ class _RoutineCard extends StatelessWidget {
                     if (v == 'delete') onDelete();
                   },
                   itemBuilder: (_) => const [
+                    PopupMenuItem(value: 'edit', child: Text('Edit routine')),
                     PopupMenuItem(
-                        value: 'edit',
-                        child: Text('Edit routine')),
-                    PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Delete',
-                            style: TextStyle(color: Colors.red))),
+                      value: 'delete',
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -728,44 +811,51 @@ class _RoutineCard extends StatelessWidget {
             if (routine.exercises.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Text('No exercises yet – tap ⋮ to edit',
-                    style: TextStyle(
-                        color: Colors.grey[500], fontSize: 13)),
+                child: Text(
+                  'No exercises yet – tap ⋮ to edit',
+                  style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                ),
               )
             else ...[
               const Divider(height: 16),
-              ...preview.map((re) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundColor:
-                              Colors.blue.withValues(alpha: 0.12),
-                          child: const Icon(Icons.fitness_center,
-                              size: 16, color: Colors.blue),
+              ...preview.map(
+                (re) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: Colors.blue.withValues(alpha: 0.12),
+                        child: const Icon(
+                          Icons.fitness_center,
+                          size: 16,
+                          color: Colors.blue,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(re.exerciseName,
-                              style: const TextStyle(fontSize: 14),
-                              overflow: TextOverflow.ellipsis),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          re.exerciseName,
+                          style: const TextStyle(fontSize: 14),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        Text(
-                            '${re.sets} sets'
-                            '${re.weight != null ? ' · ${re.weight!.toStringAsFixed(1)} kg' : ''}',
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12)),
-                      ],
-                    ),
-                  )),
+                      ),
+                      Text(
+                        '${re.sets} sets'
+                        '${re.weight != null ? ' · ${re.weight!.toStringAsFixed(1)} kg' : ''}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               if (extra > 0)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text('and $extra more',
-                      style: TextStyle(
-                          color: Colors.grey[500], fontSize: 13)),
+                  child: Text(
+                    'and $extra more',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                  ),
                 ),
             ],
 
@@ -779,14 +869,20 @@ class _RoutineCard extends StatelessWidget {
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 22, vertical: 8),
+                    horizontal: 22,
+                    vertical: 8,
+                  ),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: const Text('START',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2)),
+                child: const Text(
+                  'START',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
               ),
             ),
           ],
@@ -800,10 +896,7 @@ class _PlanTemplateChip extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _PlanTemplateChip({
-    required this.label,
-    required this.onTap,
-  });
+  const _PlanTemplateChip({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -822,7 +915,11 @@ class _PlanTemplateChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.add_circle_outline, size: 16, color: Colors.blue),
+              const Icon(
+                Icons.add_circle_outline,
+                size: 16,
+                color: Colors.blue,
+              ),
               const SizedBox(width: 6),
               Text(
                 label,
@@ -874,24 +971,28 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
       _nameCtrl.text = widget.existing!.name;
       // Deep-copy so edits don't touch the originals until saved
       _exercises = widget.existing!.exercises
-          .map((e) => RoutineExercise(
-                exerciseId: e.exerciseId,
-                exerciseName: e.exerciseName,
-                sets: e.sets,
-                reps: e.reps,
-                weight: e.weight,
-              ))
+          .map(
+            (e) => RoutineExercise(
+              exerciseId: e.exerciseId,
+              exerciseName: e.exerciseName,
+              sets: e.sets,
+              reps: e.reps,
+              weight: e.weight,
+            ),
+          )
           .toList();
     } else {
       _nameCtrl.text = widget.initialName ?? '';
       _exercises = (widget.initialExercises ?? [])
-          .map((e) => RoutineExercise(
-                exerciseId: e.exerciseId,
-                exerciseName: e.exerciseName,
-                sets: e.sets,
-                reps: e.reps,
-                weight: e.weight,
-              ))
+          .map(
+            (e) => RoutineExercise(
+              exerciseId: e.exerciseId,
+              exerciseName: e.exerciseName,
+              sets: e.sets,
+              reps: e.reps,
+              weight: e.weight,
+            ),
+          )
           .toList();
     }
   }
@@ -904,86 +1005,126 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
 
   void _pickExercise() {
     final addedIds = _exercises.map((e) => e.exerciseId).toSet();
-    final available =
-        widget.allExercises.where((e) => !addedIds.contains(e.id)).toList();
+    final available = widget.allExercises
+        .where((e) => !addedIds.contains(e.id))
+        .toList();
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.85,
-        minChildSize: 0.4,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (_, scrollCtrl) => Column(
-          children: [
-            const SizedBox(height: 8),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2)),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 8, 4),
-              child: Row(
+      builder: (ctx) {
+        String query = '';
+        return StatefulBuilder(
+          builder: (ctx, setSearch) {
+            final filtered = query.isEmpty
+                ? available
+                : available
+                      .where(
+                        (e) =>
+                            e.name.toLowerCase().contains(query.toLowerCase()),
+                      )
+                      .toList();
+            return DraggableScrollableSheet(
+              initialChildSize: 0.85,
+              minChildSize: 0.4,
+              maxChildSize: 0.95,
+              expand: false,
+              builder: (_, scrollCtrl) => Column(
                 children: [
-                  const Text('Add Exercise',
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Spacer(),
-                  IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(ctx)),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 8, 4),
+                    child: Row(
+                      children: [
+                        const Text(
+                          'Add Exercise',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Search exercises…',
+                        prefixIcon: Icon(Icons.search),
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (v) => setSearch(() => query = v),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollCtrl,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) {
+                        final ex = filtered[i];
+                        return ListTile(
+                          title: Text(
+                            ex.name,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          subtitle: Text(ex.getPrimaryMusclesDisplay()),
+                          trailing: const Icon(
+                            Icons.add_circle_outline,
+                            color: Colors.blue,
+                          ),
+                          onTap: () {
+                            setState(
+                              () => _exercises.add(
+                                RoutineExercise(
+                                  exerciseId: ex.id,
+                                  exerciseName: ex.name,
+                                ),
+                              ),
+                            );
+                            Navigator.pop(ctx);
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollCtrl,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: available.length,
-                itemBuilder: (_, i) {
-                  final ex = available[i];
-                  return ListTile(
-                    title: Text(ex.name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w500)),
-                    subtitle: Text(ex.getPrimaryMusclesDisplay()),
-                    trailing: const Icon(Icons.add_circle_outline,
-                        color: Colors.blue),
-                    onTap: () {
-                      setState(() {
-                        _exercises.add(RoutineExercise(
-                          exerciseId: ex.id,
-                          exerciseName: ex.name,
-                        ));
-                      });
-                      Navigator.pop(ctx);
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
   Future<void> _save() async {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter a routine name')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Enter a routine name')));
       return;
     }
     setState(() => _saving = true);
     final routine = Routine(
-      id: widget.existing?.id ??
+      id:
+          widget.existing?.id ??
           DateTime.now().millisecondsSinceEpoch.toString(),
       name: name,
       exercises: _exercises,
@@ -995,8 +1136,9 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: DraggableScrollableSheet(
         initialChildSize: 0.9,
         minChildSize: 0.5,
@@ -1009,8 +1151,9 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2)),
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             // Header
             Padding(
@@ -1018,11 +1161,11 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
               child: Row(
                 children: [
                   Text(
-                    widget.existing == null
-                        ? 'New Routine'
-                        : 'Edit Routine',
+                    widget.existing == null ? 'New Routine' : 'Edit Routine',
                     style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const Spacer(),
                   TextButton(
@@ -1031,12 +1174,15 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2))
-                        : const Text('Save',
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Save',
                             style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -1058,8 +1204,10 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
             Expanded(
               child: ListView(
                 controller: scrollCtrl,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 children: [
                   ..._exercises.asMap().entries.map((entry) {
                     final i = entry.key;
@@ -1067,8 +1215,7 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
                     return _ExerciseEditTile(
                       key: ValueKey(re.exerciseId + i.toString()),
                       routineExercise: re,
-                      onDelete: () =>
-                          setState(() => _exercises.removeAt(i)),
+                      onDelete: () => setState(() => _exercises.removeAt(i)),
                     );
                   }),
                   const SizedBox(height: 4),
@@ -1088,9 +1235,7 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Exercise tile inside the form (editable sets / reps / weight)
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _ExerciseEditTile extends StatefulWidget {
   final RoutineExercise routineExercise;
@@ -1114,7 +1259,8 @@ class _ExerciseEditTileState extends State<_ExerciseEditTile> {
     super.initState();
     final w = widget.routineExercise.weight;
     _weightCtrl = TextEditingController(
-        text: w != null ? w.toStringAsFixed(1) : '');
+      text: w != null ? w.toStringAsFixed(1) : '',
+    );
   }
 
   @override
@@ -1136,13 +1282,20 @@ class _ExerciseEditTileState extends State<_ExerciseEditTile> {
             Row(
               children: [
                 Expanded(
-                  child: Text(re.exerciseName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 15)),
+                  child: Text(
+                    re.exerciseName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline,
-                      color: Colors.red, size: 20),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.red,
+                    size: 20,
+                  ),
                   onPressed: widget.onDelete,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -1177,17 +1330,19 @@ class _ExerciseEditTileState extends State<_ExerciseEditTile> {
                   child: TextField(
                     controller: _weightCtrl,
                     keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true),
+                      decimal: true,
+                    ),
                     style: const TextStyle(fontSize: 13),
                     decoration: const InputDecoration(
                       hintText: '—',
                       isDense: true,
                       contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 6),
+                        horizontal: 8,
+                        vertical: 6,
+                      ),
                       border: OutlineInputBorder(),
                     ),
-                    onChanged: (v) =>
-                        re.weight = double.tryParse(v),
+                    onChanged: (v) => re.weight = double.tryParse(v),
                   ),
                 ),
               ],
@@ -1235,15 +1390,22 @@ class _Stepper extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _btn(Icons.remove, value > min,
-            value > min ? () => onChanged(value - 1) : null),
+        _btn(
+          Icons.remove,
+          value > min,
+          value > min ? () => onChanged(value - 1) : null,
+        ),
         const SizedBox(width: 6),
-        Text('$value',
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(
+          '$value',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
         const SizedBox(width: 6),
-        _btn(Icons.add, value < max,
-            value < max ? () => onChanged(value + 1) : null),
+        _btn(
+          Icons.add,
+          value < max,
+          value < max ? () => onChanged(value + 1) : null,
+        ),
       ],
     );
   }

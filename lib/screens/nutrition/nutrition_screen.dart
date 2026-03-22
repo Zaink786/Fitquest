@@ -133,9 +133,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                           children: [
                             Text(
                               'Nutrition',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
+                              style: Theme.of(context).textTheme.headlineSmall
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             Text(
@@ -233,14 +231,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                _buildCalorieDetail('Consumed', consumed.toInt(), Colors.green),
                 _buildCalorieDetail(
-                    'Consumed', consumed.toInt(), Colors.green),
-                _buildCalorieDetail(
-                    'Remaining',
-                    remaining > 0 ? remaining.toInt() : 0,
-                    remaining > 0 ? Colors.grey : Colors.red),
-                _buildCalorieDetail(
-                    'Goal', _calorieGoal.toInt(), Colors.blue),
+                  'Remaining',
+                  remaining > 0 ? remaining.toInt() : 0,
+                  remaining > 0 ? Colors.grey : Colors.red,
+                ),
+                _buildCalorieDetail('Goal', _calorieGoal.toInt(), Colors.blue),
               ],
             ),
           ],
@@ -255,10 +252,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
         Text(
           '$value',
           style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold, color: color),
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
-        Text(label,
-            style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
@@ -310,8 +309,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 
-  Widget _buildMacroRow(
-      String name, double current, double goal, Color color) {
+  Widget _buildMacroRow(String name, double current, double goal, Color color) {
     final progress = (current / goal).clamp(0.0, 1.0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,14 +361,20 @@ class _NutritionScreenState extends State<NutritionScreen> {
               children: [
                 Expanded(
                   child: _buildMiniStat(
-                      'Sodium', '${sodium.toInt()} mg', Icons.water_drop,
-                      Colors.teal),
+                    'Sodium',
+                    '${sodium.toInt()} mg',
+                    Icons.water_drop,
+                    Colors.teal,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildMiniStat(
-                      'Cholesterol', '${cholesterol.toInt()} mg',
-                      Icons.monitor_heart, Colors.red),
+                    'Cholesterol',
+                    '${cholesterol.toInt()} mg',
+                    Icons.monitor_heart,
+                    Colors.red,
+                  ),
                 ),
               ],
             ),
@@ -379,14 +383,20 @@ class _NutritionScreenState extends State<NutritionScreen> {
               children: [
                 Expanded(
                   child: _buildMiniStat(
-                      'Sugars', '${sugars.toStringAsFixed(1)}g',
-                      Icons.cake, Colors.pink),
+                    'Sugars',
+                    '${sugars.toStringAsFixed(1)}g',
+                    Icons.cake,
+                    Colors.pink,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildMiniStat(
-                      'Water', '${water.toInt()} ml',
-                      Icons.local_drink, Colors.blue),
+                    'Water',
+                    '${water.toInt()} ml',
+                    Icons.local_drink,
+                    Colors.blue,
+                  ),
                 ),
               ],
             ),
@@ -397,7 +407,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   Widget _buildMiniStat(
-      String label, String value, IconData icon, Color color) {
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -411,11 +425,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: color, fontSize: 14)),
-              Text(label,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+              Text(
+                value,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                label,
+                style: TextStyle(color: Colors.grey[600], fontSize: 11),
+              ),
             ],
           ),
         ],
@@ -450,21 +471,28 @@ class _NutritionScreenState extends State<NutritionScreen> {
           Card(
             elevation: 1,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Center(
                 child: Column(
                   children: [
-                    Icon(Icons.restaurant_menu,
-                        size: 48, color: Colors.grey[400]),
+                    Icon(
+                      Icons.restaurant_menu,
+                      size: 48,
+                      color: Colors.grey[400],
+                    ),
                     const SizedBox(height: 8),
-                    Text('No meals logged today',
-                        style: TextStyle(color: Colors.grey[600])),
+                    Text(
+                      'No meals logged today',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
                     const SizedBox(height: 4),
-                    Text('Tap "Log Food" to get started',
-                        style:
-                            TextStyle(color: Colors.grey[500], fontSize: 13)),
+                    Text(
+                      'Tap "Log Food" to get started',
+                      style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                    ),
                   ],
                 ),
               ),
@@ -472,17 +500,21 @@ class _NutritionScreenState extends State<NutritionScreen> {
           )
         else
           ...mealTypes.map((type) {
-            final meals =
-                _todaysMeals.where((m) => m.mealType == type).toList();
+            final meals = _todaysMeals
+                .where((m) => m.mealType == type)
+                .toList();
             if (meals.isEmpty) return const SizedBox.shrink();
 
             final totalCals = meals.fold<double>(
-                0, (sum, m) => sum + (m.calories * m.servings));
+              0,
+              (sum, m) => sum + (m.calories * m.servings),
+            );
 
             return Card(
               elevation: 1,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               margin: const EdgeInsets.only(bottom: 8),
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -491,8 +523,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(mealIcons[type],
-                            color: mealColors[type], size: 20),
+                        Icon(
+                          mealIcons[type],
+                          color: mealColors[type],
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           type,
@@ -512,27 +547,29 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       ],
                     ),
                     const Divider(),
-                    ...meals.map((m) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  '${m.foodName}${m.servings != 1 ? ' x${m.servings}' : ''}',
-                                  style: const TextStyle(fontSize: 14),
-                                ),
+                    ...meals.map(
+                      (m) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${m.foodName}${m.servings != 1 ? ' x${m.servings}' : ''}',
+                                style: const TextStyle(fontSize: 14),
                               ),
-                              Text(
-                                '${(m.calories * m.servings).toInt()} kcal',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey[600]),
+                            ),
+                            Text(
+                              '${(m.calories * m.servings).toInt()} kcal',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
                               ),
-                            ],
-                          ),
-                        )),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -585,14 +622,12 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
   void _filterFoods() {
     setState(() {
       _filteredFoods = widget.foods.where((f) {
-        final matchesSearch = _searchController.text.isEmpty ||
-            f.name
-                .toLowerCase()
-                .contains(_searchController.text.toLowerCase());
-        final matchesCategory = _selectedCategory == 'All' ||
-            f.category
-                .toLowerCase()
-                .contains(_selectedCategory.toLowerCase());
+        final matchesSearch =
+            _searchController.text.isEmpty ||
+            f.name.toLowerCase().contains(_searchController.text.toLowerCase());
+        final matchesCategory =
+            _selectedCategory == 'All' ||
+            f.category.toLowerCase().contains(_selectedCategory.toLowerCase());
         return matchesSearch && matchesCategory;
       }).toList();
     });
@@ -635,7 +670,9 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
                   Text(
                     'Add to ${widget.mealType}',
                     style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   // Search bar
@@ -659,13 +696,15 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: _categories.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 6),
+                      separatorBuilder: (_, _) => const SizedBox(width: 6),
                       itemBuilder: (context, index) {
                         final cat = _categories[index];
                         final selected = cat == _selectedCategory;
                         return ChoiceChip(
-                          label:
-                              Text(cat, style: const TextStyle(fontSize: 12)),
+                          label: Text(
+                            cat,
+                            style: const TextStyle(fontSize: 12),
+                          ),
                           selected: selected,
                           onSelected: (_) {
                             setState(() => _selectedCategory = cat);
@@ -695,31 +734,36 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
             Expanded(
               child: _filteredFoods.isEmpty
                   ? Center(
-                      child: Text('No foods found',
-                          style: TextStyle(color: Colors.grey[500])),
+                      child: Text(
+                        'No foods found',
+                        style: TextStyle(color: Colors.grey[500]),
+                      ),
                     )
                   : ListView.separated(
                       controller: scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: _filteredFoods.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      separatorBuilder: (_, _) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final food = _filteredFoods[index];
                         return ListTile(
                           title: Text(
                             food.name,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w500),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                           subtitle: Text(
                             '${food.calories.toInt()} kcal · P: ${food.protein}g · C: ${food.carbohydrates}g · F: ${food.fat}g',
                             style: TextStyle(
-                                fontSize: 12, color: Colors.grey[600]),
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
                           ),
                           trailing: Text(
                             food.category,
                             style: TextStyle(
-                                fontSize: 11, color: Colors.grey[500]),
+                              fontSize: 11,
+                              color: Colors.grey[500],
+                            ),
                           ),
                           onTap: () => _showServingsDialog(food),
                         );
@@ -752,22 +796,38 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
                   ),
                   child: Column(
                     children: [
-                      _macroInfoRow('Calories',
-                          '${(food.calories * servings).toInt()} kcal'),
-                      _macroInfoRow('Protein',
-                          '${(food.protein * servings).toStringAsFixed(1)}g'),
-                      _macroInfoRow('Carbs',
-                          '${(food.carbohydrates * servings).toStringAsFixed(1)}g'),
-                      _macroInfoRow('Fat',
-                          '${(food.fat * servings).toStringAsFixed(1)}g'),
-                      _macroInfoRow('Fiber',
-                          '${(food.fiber * servings).toStringAsFixed(1)}g'),
-                      _macroInfoRow('Sugars',
-                          '${(food.sugars * servings).toStringAsFixed(1)}g'),
-                      _macroInfoRow('Sodium',
-                          '${(food.sodium * servings).toInt()} mg'),
-                      _macroInfoRow('Cholesterol',
-                          '${(food.cholesterol * servings).toInt()} mg'),
+                      _macroInfoRow(
+                        'Calories',
+                        '${(food.calories * servings).toInt()} kcal',
+                      ),
+                      _macroInfoRow(
+                        'Protein',
+                        '${(food.protein * servings).toStringAsFixed(1)}g',
+                      ),
+                      _macroInfoRow(
+                        'Carbs',
+                        '${(food.carbohydrates * servings).toStringAsFixed(1)}g',
+                      ),
+                      _macroInfoRow(
+                        'Fat',
+                        '${(food.fat * servings).toStringAsFixed(1)}g',
+                      ),
+                      _macroInfoRow(
+                        'Fiber',
+                        '${(food.fiber * servings).toStringAsFixed(1)}g',
+                      ),
+                      _macroInfoRow(
+                        'Sugars',
+                        '${(food.sugars * servings).toStringAsFixed(1)}g',
+                      ),
+                      _macroInfoRow(
+                        'Sodium',
+                        '${(food.sodium * servings).toInt()} mg',
+                      ),
+                      _macroInfoRow(
+                        'Cholesterol',
+                        '${(food.cholesterol * servings).toInt()} mg',
+                      ),
                     ],
                   ),
                 ),
@@ -791,12 +851,13 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
                           ? '${servings.toInt()}'
                           : servings.toStringAsFixed(1),
                       style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.add_circle_outline),
-                      onPressed: () =>
-                          setDialogState(() => servings += 0.5),
+                      onPressed: () => setDialogState(() => servings += 0.5),
                     ),
                   ],
                 ),
@@ -811,7 +872,10 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
               ElevatedButton(
                 onPressed: () async {
                   final entry = MealEntry.fromFood(
-                      food, servings, widget.mealType);
+                    food,
+                    servings,
+                    widget.mealType,
+                  );
                   await NutritionService.logMeal(entry);
 
                   // +5 XP for logging a meal
@@ -828,16 +892,15 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                            '${food.name} added to ${widget.mealType}'),
+                          '${food.name} added to ${widget.mealType}',
+                        ),
                         backgroundColor: Colors.green,
                       ),
                     );
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green),
-                child: const Text('Add',
-                    style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                child: const Text('Add', style: TextStyle(color: Colors.white)),
               ),
             ],
           );
@@ -853,9 +916,10 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontSize: 13)),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w600)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
