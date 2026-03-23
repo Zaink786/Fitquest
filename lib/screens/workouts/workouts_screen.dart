@@ -5,6 +5,7 @@ import '../../models/workout_session_model.dart';
 import '../../services/exercise_service.dart';
 import '../../services/routine_service.dart';
 import '../../services/storage_service.dart';
+import 'active_workout_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main screen
@@ -430,53 +431,17 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     return picked;
   }
 
-  Future<void> _startRoutine(Routine routine) async {
+  void _startRoutine(Routine routine) {
     if (routine.exercises.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Add exercises to this routine first')),
       );
       return;
     }
-    final workoutExercises = routine.exercises
-        .map(
-          (re) => WorkoutExercise(
-            exerciseId: re.exerciseId,
-            exerciseName: re.exerciseName,
-            exerciseLevel: 'intermediate',
-            sets: re.sets,
-            reps: re.reps,
-            weight: re.weight,
-            pointsEarned: 20,
-          ),
-        )
-        .toList();
-    final session = WorkoutSession(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: routine.name,
-      date: DateTime.now(),
-      exercises: workoutExercises,
-      totalPoints: workoutExercises.length * 20,
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ActiveWorkoutScreen(routine: routine)),
     );
-    await StorageService.saveWorkout(session);
-    await StorageService.addPoints(session.totalPoints);
-    await StorageService.addDailyPoints(session.totalPoints);
-    await StorageService.checkFirstWorkoutAchievement();
-    await StorageService.updateStreak();
-    await StorageService.checkStreakAchievement(
-      StorageService.getCurrentStreak(),
-    );
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${routine.name} complete! +${session.totalPoints} XP 💪',
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 4),
-        ),
-      );
-    }
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -508,8 +473,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     ),
   );
 
-  // ── Build ──────────────────────────────────────────────────────────────────
-
+  // ── Build
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -522,7 +486,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── New Workout ──────────────────────────────
+                    // ── New Workout
                     const Text(
                       'New Workout',
                       style: TextStyle(
@@ -546,7 +510,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // ── Routines header ──────────────────────────
+                    // ── Routines header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -595,7 +559,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // ── Empty state ──────────────────────────────
+                    // ── Empty state
                     if (_routines.isEmpty)
                       Center(
                         child: Padding(
@@ -626,7 +590,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                         ),
                       )
                     else ...[
-                      // ── Collapsible group header ─────────────
+                      // ── Collapsible group header
                       InkWell(
                         onTap: () => setState(
                           () => _isRoutinesExpanded = !_isRoutinesExpanded,
@@ -662,7 +626,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                         ),
                       ),
 
-                      // ── Routine cards ────────────────────────
+                      // ── Routine cards
                       if (_isRoutinesExpanded) ...[
                         const SizedBox(height: 10),
                         ..._routines.map(
@@ -683,9 +647,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // New Workout button card
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _NewWorkoutCard extends StatelessWidget {
   final String label;
@@ -936,9 +898,7 @@ class _PlanTemplateChip extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Create / Edit routine bottom sheet
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _RoutineFormSheet extends StatefulWidget {
   final Routine? existing;
