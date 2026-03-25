@@ -6,7 +6,7 @@ import '../models/level_model.dart';
 class StorageService {
   static late SharedPreferences _prefs;
   static late Box<WorkoutSession> _workoutsBox;
-  
+
   // Keys for SharedPreferences
   static const String _pointsKey = 'total_points';
   static const String _streakKey = 'current_streak';
@@ -17,15 +17,16 @@ class StorageService {
   static const String _dailyPointsDateKey = 'daily_points_date';
   static const String _unlockedAchievementsKey = 'unlocked_achievements';
   static const String _calorieGoalMetDateKey = 'calorie_goal_met_date';
+  static const String _questPointsKey = 'quest_points';
 
   /// Initialize storage - call this once at app startup
   static Future<void> initialize() async {
     // Initialize SharedPreferences
     _prefs = await SharedPreferences.getInstance();
-    
+
     // Initialize Hive
     await Hive.initFlutter();
-    
+
     // Register Hive adapters (we'll create these next)
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(WorkoutSessionAdapter());
@@ -33,13 +34,13 @@ class StorageService {
     if (!Hive.isAdapterRegistered(1)) {
       Hive.registerAdapter(WorkoutExerciseAdapter());
     }
-    
+
     // Open boxes
     _workoutsBox = await Hive.openBox<WorkoutSession>('workouts');
   }
 
   // ==================== Points ====================
-  
+
   static int getTotalPoints() {
     return _prefs.getInt(_pointsKey) ?? 0;
   }
@@ -61,7 +62,7 @@ class StorageService {
   }
 
   // ==================== Streak ====================
-  
+
   static int getCurrentStreak() {
     return _prefs.getInt(_streakKey) ?? 0;
   }
@@ -81,9 +82,10 @@ class StorageService {
   /// Update streak based on activity
   static Future<void> updateStreak() async {
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final lastActive = getLastActiveDate();
-    
+
     if (lastActive == null) {
       // First time
       await setStreak(1);
@@ -115,30 +117,32 @@ class StorageService {
   }
 
   // ==================== Steps ====================
-  
+
   static int getTodaySteps() {
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final savedDate = _prefs.getString(_stepDateKey);
-    
+
     if (savedDate != todayStr) {
       // New day - reset steps
       return 0;
     }
-    
+
     return _prefs.getInt(_stepsKey) ?? 0;
   }
 
   static Future<void> setTodaySteps(int steps) async {
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
     await _prefs.setInt(_stepsKey, steps);
     await _prefs.setString(_stepDateKey, todayStr);
   }
 
   // ==================== Workouts ====================
-  
+
   static Future<void> saveWorkout(WorkoutSession workout) async {
     await _workoutsBox.put(workout.id, workout);
   }
@@ -160,11 +164,9 @@ class StorageService {
   }
 
   /// Returns the most recent [WorkoutSession] that contains an exercise
-  /// matching [exerciseId], sorted by date descending.
   /// Returns null if no history exists for this exercise.
   static WorkoutSession? getLastSessionForExercise(String exerciseId) {
-    final sessions = getAllWorkouts()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    final sessions = getAllWorkouts()..sort((a, b) => b.date.compareTo(a.date));
     for (final session in sessions) {
       if (session.exercises.any((ex) => ex.exerciseId == exerciseId)) {
         return session;
@@ -173,35 +175,37 @@ class StorageService {
     return null;
   }
 
-  // ==================== Daily Points ====================
-  
+  // Daily Points
+
   static int getDailyPoints() {
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final savedDate = _prefs.getString(_dailyPointsDateKey);
-    
+
     if (savedDate != todayStr) {
       // New day - reset daily points
       return 0;
     }
-    
+
     return _prefs.getInt(_dailyPointsKey) ?? 0;
   }
 
   static Future<void> addDailyPoints(int points) async {
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final savedDate = _prefs.getString(_dailyPointsDateKey);
-    
+
     int currentDailyPoints = 0;
     if (savedDate == todayStr) {
       currentDailyPoints = _prefs.getInt(_dailyPointsKey) ?? 0;
     }
-    
+
     final newDailyPoints = currentDailyPoints + points;
     await _prefs.setInt(_dailyPointsKey, newDailyPoints);
     await _prefs.setString(_dailyPointsDateKey, todayStr);
-    
+
     // Check for 100 points achievement
     await _checkDailyPointsAchievement(newDailyPoints);
   }
@@ -212,8 +216,8 @@ class StorageService {
     }
   }
 
-  // ==================== Achievements ====================
-  
+  // Achievements
+
   static List<String> getUnlockedAchievements() {
     return _prefs.getStringList(_unlockedAchievementsKey) ?? [];
   }
@@ -246,12 +250,13 @@ class StorageService {
     }
   }
 
-  // ==================== Calorie Goal ====================
+  //  Calorie Goal
 
   /// Returns true if the calorie goal bonus was already awarded today.
   static bool isCalorieGoalMetToday() {
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     return _prefs.getString(_calorieGoalMetDateKey) == todayStr;
   }
 
@@ -259,14 +264,30 @@ class StorageService {
   static Future<void> awardCalorieGoalBonus() async {
     if (isCalorieGoalMetToday()) return; // already awarded today
     final today = DateTime.now();
-    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     await _prefs.setString(_calorieGoalMetDateKey, todayStr);
     await addPoints(20);
     await addDailyPoints(20);
   }
 
-  // ==================== Cleanup ====================
-  
+  // ==================== Quest Points
+
+  static int getQuestPoints() {
+    return _prefs.getInt(_questPointsKey) ?? 0;
+  }
+
+  static Future<void> setQuestPoints(int points) async {
+    await _prefs.setInt(_questPointsKey, points);
+  }
+
+  static Future<void> addQuestPoints(int points) async {
+    final current = getQuestPoints();
+    await setQuestPoints(current + points);
+  }
+
+  //  Cleanup
+
   static Future<void> close() async {
     await _workoutsBox.close();
   }
