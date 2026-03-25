@@ -19,7 +19,7 @@ class QuestWorld {
   });
 }
 
-/// All 10 quest worlds in order of progression.
+// All 10 quest worlds in order of progression.
 const List<QuestWorld> questWorlds = [
   QuestWorld(
     id: 1,
@@ -72,7 +72,8 @@ const List<QuestWorld> questWorlds = [
   QuestWorld(
     id: 7,
     name: 'Sky Citadel',
-    description: 'A fortress in the clouds. Only true warriors reach this high.',
+    description:
+        'A fortress in the clouds. Only true warriors reach this high.',
     requiredPoints: 2200,
     icon: Icons.castle,
     gradient: [Color(0xFF7E57C2), Color(0xFFB39DDB)],

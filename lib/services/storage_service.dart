@@ -27,7 +27,6 @@ class StorageService {
     // Initialize Hive
     await Hive.initFlutter();
 
-    // Register Hive adapters (we'll create these next)
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(WorkoutSessionAdapter());
     }
@@ -39,7 +38,7 @@ class StorageService {
     _workoutsBox = await Hive.openBox<WorkoutSession>('workouts');
   }
 
-  // ==================== Points ====================
+  // Points
 
   static int getTotalPoints() {
     return _prefs.getInt(_pointsKey) ?? 0;
@@ -54,14 +53,14 @@ class StorageService {
     await setTotalPoints(current + points);
   }
 
-  // ==================== Level System ====================
+  // Level System
 
   /// Get the user's current level info based on total points.
   static LevelInfo getLevelInfo() {
     return LevelSystem.fromTotalXp(getTotalPoints());
   }
 
-  // ==================== Streak ====================
+  // Streak
 
   static int getCurrentStreak() {
     return _prefs.getInt(_streakKey) ?? 0;
@@ -116,7 +115,7 @@ class StorageService {
     await setLastActiveDate(todayStr);
   }
 
-  // ==================== Steps ====================
+  //  Steps
 
   static int getTodaySteps() {
     final today = DateTime.now();
@@ -141,7 +140,7 @@ class StorageService {
     await _prefs.setString(_stepDateKey, todayStr);
   }
 
-  // ==================== Workouts ====================
+  //  Workouts
 
   static Future<void> saveWorkout(WorkoutSession workout) async {
     await _workoutsBox.put(workout.id, workout);
@@ -271,7 +270,7 @@ class StorageService {
     await addDailyPoints(20);
   }
 
-  // ==================== Quest Points
+  //  Quest Points
 
   static int getQuestPoints() {
     return _prefs.getInt(_questPointsKey) ?? 0;

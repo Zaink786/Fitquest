@@ -30,14 +30,18 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
   void initState() {
     super.initState();
     _buildControllers();
-    _lastSession =
-        StorageService.getLastSessionForExercise(widget.entry.exerciseId);
+    _lastSession = StorageService.getLastSessionForExercise(
+      widget.entry.exerciseId,
+    );
   }
 
   void _buildControllers() {
     _kgCtrls = widget.entry.sets
-        .map((s) => TextEditingController(
-            text: s.kg != null ? s.kg!.toStringAsFixed(1) : ''))
+        .map(
+          (s) => TextEditingController(
+            text: s.kg != null ? s.kg!.toStringAsFixed(1) : '',
+          ),
+        )
         .toList();
     _repsCtrls = widget.entry.sets
         .map((s) => TextEditingController(text: s.reps.toString()))
@@ -69,8 +73,11 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
         : ActiveSet();
     setState(() {
       widget.entry.sets.add(ActiveSet(kg: last.kg, reps: last.reps));
-      _kgCtrls.add(TextEditingController(
-          text: last.kg != null ? last.kg!.toStringAsFixed(1) : ''));
+      _kgCtrls.add(
+        TextEditingController(
+          text: last.kg != null ? last.kg!.toStringAsFixed(1) : '',
+        ),
+      );
       _repsCtrls.add(TextEditingController(text: last.reps.toString()));
     });
   }
@@ -114,7 +121,9 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
                   child: Text(
                     widget.entry.exerciseName,
                     style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -136,22 +145,31 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
                     children: [
                       const SizedBox(
                         width: 32,
-                        child: Text('#',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey)),
+                        child: Text(
+                          '#',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
                       ),
                       const Expanded(
-                        child: Text('KG',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey)),
+                        child: Text(
+                          'KG',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
                       ),
                       const Expanded(
-                        child: Text('REPS',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey)),
+                        child: Text(
+                          'REPS',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 44),
                     ],
@@ -189,10 +207,12 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
                     ),
                     const SizedBox(width: 8),
                     OutlinedButton(
-                      onPressed:
-                          widget.entry.sets.isNotEmpty ? _removeLastSet : null,
+                      onPressed: widget.entry.sets.isNotEmpty
+                          ? _removeLastSet
+                          : null,
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red),
+                        foregroundColor: Colors.red,
+                      ),
                       child: const Icon(Icons.remove, size: 16),
                     ),
                   ],
@@ -213,28 +233,41 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
                         Text(
                           _formatDate(_lastSession!.date),
                           style: TextStyle(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13),
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
                             SizedBox(
                               width: 32,
-                              child: Text('#',
-                                  style: TextStyle(
-                                      color: Colors.grey[500], fontSize: 12)),
+                              child: Text(
+                                '#',
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
                             Expanded(
-                              child: Text('KG',
-                                  style: TextStyle(
-                                      color: Colors.grey[500], fontSize: 12)),
+                              child: Text(
+                                'KG',
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
                             Expanded(
-                              child: Text('REPS',
-                                  style: TextStyle(
-                                      color: Colors.grey[500], fontSize: 12)),
+                              child: Text(
+                                'REPS',
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -245,26 +278,34 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
                               children: [
                                 SizedBox(
                                   width: 32,
-                                  child: Text('${i + 1}',
-                                      style: TextStyle(
-                                          color: Colors.grey[500],
-                                          fontSize: 13)),
+                                  child: Text(
+                                    '${i + 1}',
+                                    style: TextStyle(
+                                      color: Colors.grey[500],
+                                      fontSize: 13,
+                                    ),
+                                  ),
                                 ),
                                 Expanded(
                                   child: Text(
                                     prevExercise.weight != null
-                                        ? prevExercise.weight!
-                                            .toStringAsFixed(1)
+                                        ? prevExercise.weight!.toStringAsFixed(
+                                            1,
+                                          )
                                         : '—',
                                     style: TextStyle(
-                                        color: Colors.grey[500], fontSize: 13),
+                                      color: Colors.grey[500],
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                                 Expanded(
                                   child: Text(
                                     '${prevExercise.reps}',
                                     style: TextStyle(
-                                        color: Colors.grey[500], fontSize: 13),
+                                      color: Colors.grey[500],
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -286,8 +327,18 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
 
   static String _formatDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     final wd = weekdays[date.weekday - 1];
@@ -311,9 +362,7 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Single set row widget
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _SetRow extends StatelessWidget {
   final int index;
@@ -346,20 +395,25 @@ class _SetRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 32,
-            child: Text('${index + 1}',
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+            child: Text(
+              '${index + 1}',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
           Expanded(
             child: TextField(
               controller: kgCtrl,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: const InputDecoration(
                 hintText: '—',
                 isDense: true,
                 border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 8,
+                ),
               ),
             ),
           ),
@@ -371,8 +425,10 @@ class _SetRow extends StatelessWidget {
               decoration: const InputDecoration(
                 isDense: true,
                 border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 8,
+                ),
               ),
             ),
           ),
