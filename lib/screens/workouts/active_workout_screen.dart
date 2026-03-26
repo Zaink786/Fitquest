@@ -4,6 +4,7 @@ import '../../models/active_workout_model.dart';
 import '../../models/routine_model.dart';
 import '../../models/workout_session_model.dart';
 import '../../services/storage_service.dart';
+import '../../services/quest_service.dart';
 import 'active_exercise_sheet.dart';
 
 /// Full-screen active workout session launched when the user presses START
@@ -30,14 +31,16 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
     // Pre-populate each exercise with sets from the routine defaults.
     _entries = widget.routine.exercises
-        .map((re) => ActiveExerciseEntry(
-              exerciseId: re.exerciseId,
-              exerciseName: re.exerciseName,
-              sets: List.generate(
-                re.sets,
-                (_) => ActiveSet(kg: re.weight, reps: re.reps),
-              ),
-            ))
+        .map(
+          (re) => ActiveExerciseEntry(
+            exerciseId: re.exerciseId,
+            exerciseName: re.exerciseName,
+            sets: List.generate(
+              re.sets,
+              (_) => ActiveSet(kg: re.weight, reps: re.reps),
+            ),
+          ),
+        )
         .toList();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -59,8 +62,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
-  int get _totalXp =>
-      _entries.fold(0, (sum, e) => sum + e.completedSets * 20);
+  int get _totalXp => _entries.fold(0, (sum, e) => sum + e.completedSets * 20);
 
   // ── Actions
 
@@ -69,16 +71,15 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (_) => ActiveExerciseSheet(
-        entry: entry,
-        onChanged: () => setState(() {}),
-      ),
+      builder: (_) =>
+          ActiveExerciseSheet(entry: entry, onChanged: () => setState(() {})),
     );
   }
 
   Future<void> _finishWorkout() async {
-    final completedEntries =
-        _entries.where((e) => e.completedSets > 0).toList();
+    final completedEntries = _entries
+        .where((e) => e.completedSets > 0)
+        .toList();
 
     if (completedEntries.isEmpty) {
       final discard = await showDialog<bool>(
@@ -86,7 +87,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         builder: (ctx) => AlertDialog(
           title: const Text('No sets completed'),
           content: const Text(
-              'Tick at least one set before finishing, or discard this workout.'),
+            'Tick at least one set before finishing, or discard this workout.',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -113,10 +115,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       final avgReps = doneSets.isEmpty
           ? 1
           : (doneSets.map((s) => s.reps).reduce((a, b) => a + b) /
-                  doneSets.length)
-              .round();
-      final weights =
-          doneSets.map((s) => s.kg).whereType<double>().toList();
+                    doneSets.length)
+                .round();
+      final weights = doneSets.map((s) => s.kg).whereType<double>().toList();
       final avgWeight = weights.isEmpty
           ? null
           : weights.reduce((a, b) => a + b) / weights.length;
@@ -141,28 +142,35 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       durationSeconds: _elapsedSeconds,
     );
 
+    final questResult = await QuestService.processWorkoutCompletion(
+      workoutExercises,
+    );
+
     await StorageService.saveWorkout(session);
     await StorageService.addPoints(session.totalPoints);
     await StorageService.addDailyPoints(session.totalPoints);
     await StorageService.checkFirstWorkoutAchievement();
     await StorageService.updateStreak();
     await StorageService.checkStreakAchievement(
-        StorageService.getCurrentStreak());
+      StorageService.getCurrentStreak(),
+    );
 
     if (mounted) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-            '${widget.routine.name} complete! +${session.totalPoints} XP 💪'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 4),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${widget.routine.name} complete! +${session.totalPoints} XP 💪',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4),
+        ),
+      );
     }
   }
 
   Future<bool?> _showSummaryDialog(List<ActiveExerciseEntry> completed) {
-    final totalSets =
-        completed.fold<int>(0, (s, e) => s + e.completedSets);
+    final totalSets = completed.fold<int>(0, (s, e) => s + e.completedSets);
     final xp = totalSets * 20;
     final mins = _elapsedSeconds ~/ 60;
     final secs = _elapsedSeconds % 60;
@@ -176,24 +184,28 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _SummaryRow(
-                icon: Icons.fitness_center,
-                label: 'Exercises',
-                value: '${completed.length}'),
+              icon: Icons.fitness_center,
+              label: 'Exercises',
+              value: '${completed.length}',
+            ),
             const SizedBox(height: 8),
             _SummaryRow(
-                icon: Icons.repeat,
-                label: 'Sets completed',
-                value: '$totalSets'),
+              icon: Icons.repeat,
+              label: 'Sets completed',
+              value: '$totalSets',
+            ),
             const SizedBox(height: 8),
             _SummaryRow(
-                icon: Icons.timer_outlined,
-                label: 'Duration',
-                value: duration),
+              icon: Icons.timer_outlined,
+              label: 'Duration',
+              value: duration,
+            ),
             const SizedBox(height: 8),
             _SummaryRow(
-                icon: Icons.star_outline,
-                label: 'XP earned',
-                value: '+$xp XP'),
+              icon: Icons.star_outline,
+              label: 'XP earned',
+              value: '+$xp XP',
+            ),
           ],
         ),
         actions: [
@@ -204,8 +216,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white),
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Save Workout'),
           ),
         ],
@@ -213,7 +226,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     );
   }
 
-  // ── Build 
+  // ── Build
 
   @override
   Widget build(BuildContext context) {
@@ -223,29 +236,38 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(widget.routine.name,
-                style: const TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.bold)),
-            Text(_timerDisplay,
-                style: const TextStyle(fontSize: 13, color: Colors.blue)),
+            Text(
+              widget.routine.name,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              _timerDisplay,
+              style: const TextStyle(fontSize: 13, color: Colors.blue),
+            ),
           ],
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
-            child: Text('+$_totalXp XP',
-                style: const TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14)),
+            child: Text(
+              '+$_totalXp XP',
+              style: const TextStyle(
+                color: Colors.blue,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
           ),
           TextButton(
             onPressed: _finishWorkout,
-            child: const Text('Finish',
-                style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16)),
+            child: const Text(
+              'Finish',
+              style: TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ),
         ],
       ),
@@ -260,7 +282,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     );
   }
 }
-
 
 // Exercise list tile
 
@@ -278,8 +299,7 @@ class _ExerciseTile extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
@@ -288,14 +308,16 @@ class _ExerciseTile extends StatelessWidget {
               : Colors.blue.withValues(alpha: 0.12),
           child: isComplete
               ? const Icon(Icons.check, color: Colors.white, size: 20)
-              : const Icon(Icons.fitness_center,
-                  color: Colors.blue, size: 20),
+              : const Icon(Icons.fitness_center, color: Colors.blue, size: 20),
         ),
-        title: Text(entry.exerciseName,
-            style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(
+          entry.exerciseName,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         subtitle: Text(
-            done == 0 ? '$total sets · tap to log' : '$done / $total sets done',
-            style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+          done == 0 ? '$total sets · tap to log' : '$done / $total sets done',
+          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+        ),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
       ),
     );
@@ -309,8 +331,11 @@ class _SummaryRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _SummaryRow(
-      {required this.icon, required this.label, required this.value});
+  const _SummaryRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
