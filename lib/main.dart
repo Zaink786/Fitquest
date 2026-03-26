@@ -4,15 +4,16 @@ import 'screens/workouts/workouts_screen.dart';
 import 'screens/achievements/achievements_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/nutrition/nutrition_screen.dart';
+import 'screens/quest/quest_screen.dart';
 import 'services/storage_service.dart';
 
 void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize storage
   await StorageService.initialize();
-  
+
   runApp(const FitQuestApp());
 }
 
@@ -24,10 +25,7 @@ class FitQuestApp extends StatelessWidget {
     return MaterialApp(
       title: 'FitQuest',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: false,          
-        primarySwatch: Colors.blue,   
-      ),
+      theme: ThemeData(useMaterial3: false, primarySwatch: Colors.blue),
       home: const HomeScreen(),
     );
   }
@@ -48,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WorkoutsScreen(),
     NutritionScreen(),
     AchievementsScreen(),
+    QuestScreen(),
     SettingsScreen(),
   ];
 
@@ -62,41 +61,43 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: BottomNavigationBar(
-        backgroundColor: Colors.white,     // 👈 solid background (visible)
-        selectedItemColor: Colors.blue,     // 👈 active tab color
-        unselectedItemColor: Colors.blue.withOpacity(0.75), // 👈 unselected also blue-ish
-        selectedIconTheme: const IconThemeData(color: Colors.blue),
-        unselectedIconTheme: IconThemeData(color: Colors.blue.withOpacity(0.75)),
-        showUnselectedLabels: true,
-        showSelectedLabels: true,
-        elevation: 8,
-        currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
-        onTap: (i) => setState(() => _currentIndex = i),
+          backgroundColor: Colors.white, // 👈 solid background (visible)
+          selectedItemColor: Colors.blue, // 👈 active tab color
+          unselectedItemColor: Colors.blue.withOpacity(
+            0.75,
+          ), // 👈 unselected also blue-ish
+          selectedIconTheme: const IconThemeData(color: Colors.blue),
+          unselectedIconTheme: IconThemeData(
+            color: Colors.blue.withOpacity(0.75),
+          ),
+          showUnselectedLabels: true,
+          showSelectedLabels: true,
+          elevation: 8,
+          currentIndex: _currentIndex,
+          type: BottomNavigationBarType.fixed,
+          onTap: (i) => setState(() => _currentIndex = i),
 
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'Workouts',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant_menu),
-            label: 'Nutrition',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events),
-            label: 'Achievements',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-      ),
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.fitness_center),
+              label: 'Workouts',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.restaurant_menu),
+              label: 'Nutrition',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.emoji_events),
+              label: 'Achievements',
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Quest'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
+          ],
+        ),
       ),
     );
   }
