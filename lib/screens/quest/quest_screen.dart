@@ -55,6 +55,25 @@ class _QuestScreenState extends State<QuestScreen> {
             ),
             const SizedBox(height: 20),
             _StatsRow(questPoints: _questPoints),
+            const SizedBox(height: 20),
+            const Padding(
+              padding: EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                'World Map',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            ...questWorlds.reversed.map(
+              (world) => _WorldMapTile(
+                world: world,
+                questPoints: _questPoints,
+                isCurrent: world.id == currentWorld.id,
+              ),
+            ),
             const SizedBox(height: 32),
           ],
         ),
@@ -267,6 +286,98 @@ class _StatCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _WorldMapTile extends StatelessWidget {
+  final QuestWorld world;
+  final int questPoints;
+  final bool isCurrent;
+
+  const _WorldMapTile({
+    required this.world,
+    required this.questPoints,
+    required this.isCurrent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isUnlocked = questPoints >= world.requiredPoints;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isCurrent ? world.gradient.first.withOpacity(0.1) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: isCurrent
+            ? Border.all(color: world.gradient.first, width: 2)
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            gradient: isUnlocked
+                ? LinearGradient(colors: world.gradient)
+                : null,
+            color: isUnlocked ? null : Colors.grey[300],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            isUnlocked ? world.icon : Icons.lock,
+            color: isUnlocked ? Colors.white : Colors.grey[500],
+            size: 22,
+          ),
+        ),
+        title: Text(
+          world.name,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: isUnlocked ? Colors.black87 : Colors.grey[400],
+          ),
+        ),
+        subtitle: Text(
+          isUnlocked
+              ? world.description
+              : '${world.requiredPoints} Quest Points to unlock',
+          style: TextStyle(
+            fontSize: 12,
+            color: isUnlocked ? Colors.grey[600] : Colors.grey[400],
+          ),
+        ),
+        trailing: isCurrent
+            ? Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: world.gradient.first,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'NOW',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            : isUnlocked
+            ? Icon(Icons.check_circle, color: Colors.green[400], size: 24)
+            : Icon(Icons.lock_outline, color: Colors.grey[400], size: 20),
       ),
     );
   }
