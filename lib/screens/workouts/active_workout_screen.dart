@@ -156,10 +156,10 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       StorageService.getCurrentStreak(),
     );
 
+    if (mounted && questResult.newWorldUnlocked != null) {
+      await _showWorldUnlockDialog(questResult.newWorldUnlocked!);
+    }
     if (mounted) {
-      if (questResult.newWorldUnlocked != null) {
-        await _showWorldUnlockDialog(questResult.newWorldUnlocked!);
-      }
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
