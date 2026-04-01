@@ -245,22 +245,65 @@ class _RoadRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(3),
             ),
           ),
-          Container(
-            width: _nodeSize,
-            height: _nodeSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isUnlocked ? world.gradient.first : const Color(0xFF1A3A6B),
-              border: Border.all(
-                color: isCurrent ? Colors.amber : Colors.white24,
-                width: isCurrent ? 2.5 : 1.5,
+          Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              if (progressRing != null)
+                SizedBox(
+                  width: _nodeSize + 14,
+                  height: _nodeSize + 14,
+                  child: CircularProgressIndicator(
+                    value: progressRing,
+                    strokeWidth: 3.5,
+                    backgroundColor: Colors.white24,
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.amber),
+                  ),
+                ),
+              Container(
+                width: _nodeSize,
+                height: _nodeSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: isUnlocked
+                      ? LinearGradient(
+                          colors: world.gradient,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : null,
+                  color: isUnlocked ? null : const Color(0xFF1A3A6B),
+                  border: Border.all(
+                    color: isCurrent ? Colors.amber : Colors.white24,
+                    width: isCurrent ? 2.5 : 1.5,
+                  ),
+                  boxShadow: isCurrent
+                      ? [
+                          BoxShadow(
+                            color: Colors.amber.withValues(alpha: 0.55),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                          )
+                        ]
+                      : isUnlocked
+                          ? [
+                              BoxShadow(
+                                color: world.gradient.first
+                                    .withValues(alpha: 0.4),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              )
+                            ]
+                          : null,
+                ),
+                child: Icon(
+                  isUnlocked ? world.icon : Icons.lock_outline,
+                  color: isUnlocked ? Colors.white : Colors.white38,
+                  size: 22,
+                ),
               ),
-            ),
-            child: Icon(
-              isUnlocked ? world.icon : Icons.lock_outline,
-              color: isUnlocked ? Colors.white : Colors.white38,
-              size: 22,
-            ),
+            ],
           ),
           Container(
             width: _lineW,
