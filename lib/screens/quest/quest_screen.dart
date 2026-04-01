@@ -165,3 +165,146 @@ class _AppBarProgress extends StatelessWidget {
     );
   }
 }
+
+class _RoadRow extends StatelessWidget {
+  final QuestWorld world;
+  final int index;
+  final bool isUnlocked;
+  final bool isCurrent;
+  final bool isFirst;
+  final bool isLast;
+  final bool topFilled;
+  final bool bottomFilled;
+  final double? progressRing;
+  final double cardWidth;
+
+  const _RoadRow({
+    required this.world,
+    required this.index,
+    required this.isUnlocked,
+    required this.isCurrent,
+    required this.isFirst,
+    required this.isLast,
+    required this.topFilled,
+    required this.bottomFilled,
+    required this.progressRing,
+    required this.cardWidth,
+  });
+
+  static const _filledColor = Color(0xFF00C853);
+  static const _emptyColor = Color(0xFF1E3A7A);
+  static const _lineW = 5.0;
+  static const _nodeSize = 48.0;
+  static const _halfLine = 41.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final pathColumn = SizedBox(
+      width: 44,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: _lineW,
+            height: _halfLine,
+            decoration: BoxDecoration(
+              color: isFirst
+                  ? Colors.transparent
+                  : topFilled ? _filledColor : _emptyColor,
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+          Container(
+            width: _nodeSize,
+            height: _nodeSize,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isUnlocked ? world.gradient.first : const Color(0xFF1A3A6B),
+              border: Border.all(
+                color: isCurrent ? Colors.amber : Colors.white24,
+                width: isCurrent ? 2.5 : 1.5,
+              ),
+            ),
+            child: Icon(
+              isUnlocked ? world.icon : Icons.lock_outline,
+              color: isUnlocked ? Colors.white : Colors.white38,
+              size: 22,
+            ),
+          ),
+          Container(
+            width: _lineW,
+            height: _halfLine,
+            decoration: BoxDecoration(
+              color: isLast
+                  ? Colors.transparent
+                  : bottomFilled ? _filledColor : _emptyColor,
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final card = Container(
+      height: 88,
+      decoration: BoxDecoration(
+        color: isUnlocked ? world.gradient.first : const Color(0xFF1A3A6B),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isCurrent ? Colors.amber : Colors.white24,
+          width: isCurrent ? 2 : 1,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          world.name,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: isUnlocked ? Colors.white : Colors.white38,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+
+    final leftSlot = SizedBox(
+      width: cardWidth,
+      child: index.isOdd
+          ? Padding(padding: const EdgeInsets.only(right: 6), child: card)
+          : null,
+    );
+
+    final rightSlot = SizedBox(
+      width: cardWidth,
+      child: index.isEven
+          ? Padding(padding: const EdgeInsets.only(left: 6), child: card)
+          : null,
+    );
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 54,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Text(
+              '${world.requiredPoints}',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                color: isUnlocked ? Colors.white : Colors.white38,
+                fontSize: isUnlocked ? 13 : 12,
+                fontWeight: isUnlocked ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ),
+        ),
+        leftSlot,
+        pathColumn,
+        rightSlot,
+        const SizedBox(width: 8),
+      ],
+    );
+  }
+}
