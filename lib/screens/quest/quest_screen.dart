@@ -110,9 +110,40 @@ class _QuestScreenState extends State<QuestScreen> {
           setState(() => _questPoints = StorageService.getQuestPoints());
           _scrollToCurrent();
         },
-        child: const Center(
-          child: Text('World map coming soon',
-              style: TextStyle(color: Colors.white54)),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final cardWidth = (constraints.maxWidth - 54 - 8 - 44 - 8) / 2;
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemCount: _displayWorlds.length,
+              itemBuilder: (context, index) {
+                final world = _displayWorlds[index];
+                final isUnlocked = _questPoints >= world.requiredPoints;
+                final isCurrent = world.id == currentWorld.id;
+                final isFirst = index == 0;
+                final isLast = index == _displayWorlds.length - 1;
+                final topFilled = !isFirst &&
+                    _questPoints >= _displayWorlds[index - 1].requiredPoints;
+                final bottomFilled = !isLast && isUnlocked;
+                return SizedBox(
+                  height: _rowHeight,
+                  child: _RoadRow(
+                    world: world,
+                    index: index,
+                    isUnlocked: isUnlocked,
+                    isCurrent: isCurrent,
+                    isFirst: isFirst,
+                    isLast: isLast,
+                    topFilled: topFilled,
+                    bottomFilled: bottomFilled,
+                    progressRing: isCurrent ? progress : null,
+                    cardWidth: cardWidth,
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );
