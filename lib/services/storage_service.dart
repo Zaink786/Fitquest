@@ -19,7 +19,6 @@ class StorageService {
   static const String _calorieGoalMetDateKey = 'calorie_goal_met_date';
   static const String _questPointsKey = 'quest_points';
 
-  /// Initialize storage - call this once at app startup
   static Future<void> initialize() async {
     // Initialize SharedPreferences
     _prefs = await SharedPreferences.getInstance();

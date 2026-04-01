@@ -7,9 +7,7 @@ import '../../services/routine_service.dart';
 import '../../services/storage_service.dart';
 import 'active_workout_screen.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Main screen
-// ─────────────────────────────────────────────────────────────────────────────
 
 class WorkoutsScreen extends StatefulWidget {
   const WorkoutsScreen({super.key});
@@ -55,8 +53,6 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
-  // ── Ad-hoc workouts ────────────────────────────────────────────────────────
 
   void _startEmptyWorkout() =>
       _showExercisePicker(_allExercises, 'Browse Exercises');
@@ -253,7 +249,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     );
   }
 
-  // ── Routines ───────────────────────────────────────────────────────────────
+  // Routines
 
   Future<void> _openRoutineForm({
     Routine? existing,
@@ -1314,9 +1310,7 @@ class _ExerciseEditTileState extends State<_ExerciseEditTile> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Tiny +/- stepper
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _Stepper extends StatelessWidget {
   final int value;

@@ -66,12 +66,11 @@ class Achievements {
     isUnlocked: false,
   );
 
-  static Achievement get first5000Steps => Achievement(
-    id: 'first_5000_steps',
-    title: 'Step Master',
-    description: 'Hit 5,000 steps in a single day.',
-    icon: '👟',
-    targetValue: 5000,
+  static Achievement get firstMealLogged => Achievement(
+    id: 'first_meal_logged',
+    title: 'Log a Meal',
+    description: 'Logged your first meal!',
+    icon: '🍽️',
     isUnlocked: false,
   );
 
@@ -79,6 +78,6 @@ class Achievements {
     first100Points,
     firstWorkout,
     consistencyStarter,
-    first5000Steps,
+    firstMealLogged,
   ];
 }
