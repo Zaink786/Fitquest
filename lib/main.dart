@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
+import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/workouts/workouts_screen.dart';
 import 'screens/achievements/achievements_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/nutrition/nutrition_screen.dart';
 import 'screens/quest/quest_screen.dart';
+import 'services/auth_service.dart';
 import 'services/storage_service.dart';
 
 void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize storage
+  // Initialize storage and auth
   await StorageService.initialize();
+  await AuthService.initialize();
 
   runApp(const FitQuestApp());
 }
 
-class FitQuestApp extends StatelessWidget {
+class FitQuestApp extends StatefulWidget {
   const FitQuestApp({super.key});
+
+  @override
+  State<FitQuestApp> createState() => _FitQuestAppState();
+}
+
+class _FitQuestAppState extends State<FitQuestApp> {
+  bool _isLoggedIn = AuthService.isLoggedIn();
+
+  void _onLogin() => setState(() => _isLoggedIn = true);
+  void _onLogout() => setState(() => _isLoggedIn = false);
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +39,17 @@ class FitQuestApp extends StatelessWidget {
       title: 'FitQuest',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: false, primarySwatch: Colors.blue),
-      home: const HomeScreen(),
+      home: _isLoggedIn
+          ? HomeScreen(onLogout: _onLogout)
+          : LoginScreen(onLogin: _onLogin),
     );
   }
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback onLogout;
+
+  const HomeScreen({super.key, required this.onLogout});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -41,14 +58,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    DashboardScreen(),
-    WorkoutsScreen(),
-    NutritionScreen(),
-    AchievementsScreen(),
-    QuestScreen(),
-    SettingsScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const DashboardScreen(),
+      const WorkoutsScreen(),
+      const NutritionScreen(),
+      const AchievementsScreen(),
+      const QuestScreen(),
+      SettingsScreen(onLogout: widget.onLogout),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
