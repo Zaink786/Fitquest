@@ -168,4 +168,18 @@ class NutritionService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_mealsKey);
   }
+
+  // ─── Calorie Goal ───
+
+  static const _calorieGoalKey = 'calorie_goal';
+
+  static Future<double> getCalorieGoal() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(_calorieGoalKey) ?? 2000;
+  }
+
+  static Future<void> saveCalorieGoal(double goal) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_calorieGoalKey, goal);
+  }
 }
