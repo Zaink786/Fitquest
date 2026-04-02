@@ -19,7 +19,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   int _totalFoods = 0;
 
   // Daily goals
-  final double _calorieGoal = 2000;
+  double _calorieGoal = 2000;
   final double _proteinGoal = 150;
   final double _carbsGoal = 250;
   final double _fatGoal = 65;
@@ -36,10 +36,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
       final meals = await NutritionService.getTodaysMeals();
       final macros = await NutritionService.getTodaysMacros();
       final stats = await _nutritionService.getDatabaseStats();
+      final calorieGoal = await NutritionService.getCalorieGoal();
       setState(() {
         _todaysMeals = meals;
         _todaysMacros = macros;
         _totalFoods = stats['totalFoods'] ?? 0;
+        _calorieGoal = calorieGoal;
         _isLoading = false;
       });
     } catch (e) {
@@ -49,6 +51,47 @@ class _NutritionScreenState extends State<NutritionScreen> {
           SnackBar(content: Text('Error loading nutrition data: $e')),
         );
       }
+    }
+  }
+
+  Future<void> _showEditCalorieGoalDialog() async {
+    final controller = TextEditingController(
+      text: _calorieGoal.toInt().toString(),
+    );
+    final result = await showDialog<double>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Daily Calorie Goal'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Calories (kcal)',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final value = double.tryParse(controller.text.trim());
+              if (value != null && value > 0) {
+                Navigator.pop(context, value);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (result != null) {
+      await NutritionService.saveCalorieGoal(result);
+      setState(() => _calorieGoal = result);
     }
   }
 
@@ -205,13 +248,26 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   'Calories Today',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
-                Text(
-                  '${consumed.toInt()} / ${_calorieGoal.toInt()} kcal',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '${consumed.toInt()} / ${_calorieGoal.toInt()} kcal',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: _showEditCalorieGoalDialog,
+                      child: Icon(
+                        Icons.edit,
+                        size: 16,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -633,11 +689,12 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
     });
   }
 
-  /// Check if the user hit their 2000 kcal goal and award bonus XP once/day.
+  /// Check if the user hit their calorie goal and award bonus XP once/day.
   Future<void> _checkCalorieGoal() async {
     final macros = await NutritionService.getTodaysMacros();
     final consumed = macros['calories'] ?? 0;
-    if (consumed >= 2000 && !StorageService.isCalorieGoalMetToday()) {
+    final goal = await NutritionService.getCalorieGoal();
+    if (consumed >= goal && !StorageService.isCalorieGoalMetToday()) {
       await StorageService.awardCalorieGoalBonus();
     }
   }
