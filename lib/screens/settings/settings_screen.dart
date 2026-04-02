@@ -1,15 +1,34 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final VoidCallback onLogout;
+
+  const SettingsScreen({super.key, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
+    final email = AuthService.getCurrentUser();
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
+          // Account section
+          ListTile(
+            leading: const CircleAvatar(
+              backgroundColor: Colors.blue,
+              child: Icon(Icons.person, color: Colors.white),
+            ),
+            title: const Text('Account'),
+            subtitle: Text(email ?? ''),
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Log Out'),
+            onTap: () => _confirmLogout(context),
+          ),
+          const Divider(),
           const ListTile(
             leading: Icon(Icons.info_outline, color: Colors.blue),
             title: Text('About'),
@@ -69,6 +88,31 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _confirmLogout(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Log Out?'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await AuthService.logout();
+      onLogout();
+    }
   }
 
   void _showDataInfo(BuildContext context) {
