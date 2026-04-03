@@ -4,6 +4,7 @@ class Achievement {
   final String description;
   final String icon;
   final int? targetValue;
+  final int currentProgress;
   final bool isUnlocked;
   final DateTime? unlockedAt;
 
@@ -13,6 +14,7 @@ class Achievement {
     required this.description,
     this.icon = '🏆',
     this.targetValue,
+    this.currentProgress = 0,
     required this.isUnlocked,
     this.unlockedAt,
   });
@@ -23,6 +25,7 @@ class Achievement {
     String? description,
     String? icon,
     int? targetValue,
+    int? currentProgress,
     bool? isUnlocked,
     DateTime? unlockedAt,
   }) {
@@ -32,6 +35,7 @@ class Achievement {
       description: description ?? this.description,
       icon: icon ?? this.icon,
       targetValue: targetValue ?? this.targetValue,
+      currentProgress: currentProgress ?? this.currentProgress,
       isUnlocked: isUnlocked ?? this.isUnlocked,
       unlockedAt: unlockedAt ?? this.unlockedAt,
     );
