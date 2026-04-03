@@ -78,10 +78,39 @@ class Achievements {
     isUnlocked: false,
   );
 
+  static Achievement get firstPr => Achievement(
+    id: 'first_pr',
+    title: 'First PR',
+    description: 'Beat a personal record.',
+    icon: '⚡',
+    isUnlocked: false,
+  );
+
+  static Achievement get worldTraveller => Achievement(
+    id: 'world_traveller',
+    title: 'World Traveller',
+    description: 'Unlock your second world.',
+    icon: '🌍',
+    targetValue: 100,
+    isUnlocked: false,
+  );
+
+  static Achievement get dedicated => Achievement(
+    id: 'dedicated',
+    title: 'Dedicated',
+    description: 'Maintain a 7-day streak.',
+    icon: '💪',
+    targetValue: 7,
+    isUnlocked: false,
+  );
+
   static List<Achievement> get allAchievements => [
-    first100Points,
     firstWorkout,
+    first100Points,
+    firstPr,
     consistencyStarter,
     firstMealLogged,
+    worldTraveller,
+    dedicated,
   ];
 }

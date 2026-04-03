@@ -27,18 +27,25 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final meals = await NutritionService.getAllMeals();
     final mealCount = meals.length;
 
+    final questPoints = StorageService.getQuestPoints();
+
     final progressMap = {
       'first_workout': workoutCount,
       'first_100_points': dailyPoints,
       'consistency_starter': streak,
       'first_meal_logged': mealCount,
+      'world_traveller': questPoints,
+      'dedicated': streak,
     };
 
     setState(() {
       _achievements = Achievements.allAchievements.map((achievement) {
         final isUnlocked = unlockedIds.contains(achievement.id);
         final progress = progressMap[achievement.id] ?? 0;
-        return achievement.copyWith(isUnlocked: isUnlocked, currentProgress: progress);
+        return achievement.copyWith(
+          isUnlocked: isUnlocked,
+          currentProgress: progress,
+        );
       }).toList();
     });
   }
@@ -46,11 +53,14 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   Color _progressColor(Achievement a) {
     switch (a.id) {
       case 'consistency_starter':
+      case 'dedicated':
         return Colors.blue[600]!;
       case 'first_meal_logged':
         return Colors.orange[700]!;
       case 'first_100_points':
         return Colors.amber[700]!;
+      case 'world_traveller':
+        return Colors.amber[800]!;
       default:
         return Colors.blue[600]!;
     }
@@ -61,6 +71,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       case 'consistency_starter':
         final s = a.currentProgress;
         return '$s / ${a.targetValue} days${s > 0 ? ' — keep going!' : ''}';
+      case 'dedicated':
+        final d = a.currentProgress;
+        return '$d / ${a.targetValue} days${d > 0 ? '' : ' — start your streak!'}';
       case 'first_meal_logged':
         return a.currentProgress == 0
             ? '0 / 1 — tap Nutrition to start'
@@ -69,6 +82,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         return '${a.currentProgress} / ${a.targetValue} XP today';
       case 'first_workout':
         return '${a.currentProgress} / 1 workouts logged';
+      case 'first_pr':
+        return 'Log a workout to set your first PR';
+      case 'world_traveller':
+        return '${a.currentProgress} / ${a.targetValue} Quest pts';
       default:
         if (a.targetValue != null) {
           return '${a.currentProgress} / ${a.targetValue}';
@@ -114,14 +131,18 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             final hasTarget = achievement.targetValue != null;
             final color = _progressColor(achievement);
             final fraction = hasTarget
-                ? (achievement.currentProgress / achievement.targetValue!).clamp(0.0, 1.0)
+                ? (achievement.currentProgress / achievement.targetValue!)
+                      .clamp(0.0, 1.0)
                 : 0.0;
 
             return Card(
               elevation: achievement.isUnlocked ? 3 : 1,
               color: achievement.isUnlocked ? null : Colors.grey[100],
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -179,7 +200,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                                 value: fraction,
                                 minHeight: 5,
                                 backgroundColor: Colors.grey[300],
-                                valueColor: AlwaysStoppedAnimation<Color>(color),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  color,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -213,7 +236,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                             width: 24,
                             height: 24,
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[400]!, width: 2),
+                              border: Border.all(
+                                color: Colors.grey[400]!,
+                                width: 2,
+                              ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
