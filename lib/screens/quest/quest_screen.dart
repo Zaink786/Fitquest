@@ -14,7 +14,7 @@ class QuestScreen extends StatefulWidget {
 class _QuestScreenState extends State<QuestScreen> {
   int _questPoints = 0;
   final _scrollController = ScrollController();
-  static const double _rowHeight = 130.0;
+  static const double _rowHeight = 150.0;
 
   @override
   void initState() {
@@ -32,10 +32,12 @@ class _QuestScreenState extends State<QuestScreen> {
   void _scrollToCurrent() {
     if (!_scrollController.hasClients) return;
     final currentWorld = getCurrentWorld(_questPoints);
-    final displayIndex =
-        _displayWorlds.indexWhere((w) => w.id == currentWorld.id);
+    final displayIndex = _displayWorlds.indexWhere(
+      (w) => w.id == currentWorld.id,
+    );
     if (displayIndex < 0) return;
-    final target = displayIndex * _rowHeight -
+    final target =
+        displayIndex * _rowHeight -
         (MediaQuery.of(context).size.height / 2) +
         _rowHeight;
     _scrollController.animateTo(
@@ -123,7 +125,8 @@ class _QuestScreenState extends State<QuestScreen> {
                 final isCurrent = world.id == currentWorld.id;
                 final isFirst = index == 0;
                 final isLast = index == _displayWorlds.length - 1;
-                final topFilled = !isFirst &&
+                final topFilled =
+                    !isFirst &&
                     _questPoints >= _displayWorlds[index - 1].requiredPoints;
                 final bottomFilled = !isLast && isUnlocked;
                 return SizedBox(
@@ -241,7 +244,9 @@ class _RoadRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: isFirst
                   ? Colors.transparent
-                  : topFilled ? _filledColor : _emptyColor,
+                  : topFilled
+                  ? _filledColor
+                  : _emptyColor,
               borderRadius: BorderRadius.circular(3),
             ),
           ),
@@ -257,8 +262,9 @@ class _RoadRow extends StatelessWidget {
                     value: progressRing,
                     strokeWidth: 3.5,
                     backgroundColor: Colors.white24,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.amber),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.amber,
+                    ),
                   ),
                 ),
               Container(
@@ -284,18 +290,17 @@ class _RoadRow extends StatelessWidget {
                             color: Colors.amber.withValues(alpha: 0.55),
                             blurRadius: 12,
                             spreadRadius: 2,
-                          )
+                          ),
                         ]
                       : isUnlocked
-                          ? [
-                              BoxShadow(
-                                color: world.gradient.first
-                                    .withValues(alpha: 0.4),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              )
-                            ]
-                          : null,
+                      ? [
+                          BoxShadow(
+                            color: world.gradient.first.withValues(alpha: 0.4),
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Icon(
                   isUnlocked ? world.icon : Icons.lock_outline,
@@ -311,7 +316,9 @@ class _RoadRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: isLast
                   ? Colors.transparent
-                  : bottomFilled ? _filledColor : _emptyColor,
+                  : bottomFilled
+                  ? _filledColor
+                  : _emptyColor,
               borderRadius: BorderRadius.circular(3),
             ),
           ),
@@ -380,7 +387,7 @@ class _WorldCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 88,
+      height: 104,
       decoration: BoxDecoration(
         gradient: isUnlocked
             ? LinearGradient(
@@ -403,17 +410,17 @@ class _WorldCard extends StatelessWidget {
                   blurRadius: 10,
                   spreadRadius: 1,
                   offset: const Offset(0, 3),
-                )
+                ),
               ]
             : isUnlocked
-                ? [
-                    BoxShadow(
-                      color: world.gradient.first.withValues(alpha: 0.35),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    )
-                  ]
-                : null,
+            ? [
+                BoxShadow(
+                  color: world.gradient.first.withValues(alpha: 0.35),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : null,
       ),
       child: Stack(
         children: [
@@ -459,7 +466,10 @@ class _WorldCard extends StatelessWidget {
                 if (isCurrent) ...[
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber,
                       borderRadius: BorderRadius.circular(8),

@@ -85,9 +85,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'FitQuest',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
