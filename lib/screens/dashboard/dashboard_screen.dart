@@ -15,6 +15,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   bool _isLoading = true;
   String? _errorMessage;
+  bool _showOnboarding = false;
 
   int _points = 0;
   int _streakDays = 0;
@@ -74,11 +75,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final points = StorageService.getTotalPoints();
       final streak = StorageService.getCurrentStreak();
       final levelInfo = StorageService.getLevelInfo();
+      final seenOnboarding = StorageService.hasSeenOnboarding();
 
       setState(() {
         _points = points;
         _streakDays = streak;
         _levelInfo = levelInfo;
+        _showOnboarding = !seenOnboarding;
         _isLoading = false;
       });
     } catch (e) {
@@ -158,6 +161,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ] else ...[
+                // Onboarding card (shown only on first launch)
+                if (_showOnboarding) ...[
+                  _OnboardingCard(
+                    onDismiss: () async {
+                      await StorageService.setHasSeenOnboarding();
+                      setState(() => _showOnboarding = false);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // Level card
                 Card(
                   elevation: 2,
@@ -448,6 +462,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _OnboardingCard extends StatelessWidget {
+  final VoidCallback onDismiss;
+
+  const _OnboardingCard({required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(16),
+        border: Border(
+          left: BorderSide(color: Colors.blue[700]!, width: 4),
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Welcome to FitQuest',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'XP levels you up from any activity — workouts, meals, streaks, and goals. '
+            'Quest Points come exclusively from personal records and unlock new worlds on the Quest map.',
+            style: TextStyle(fontSize: 14, color: Colors.grey[800], height: 1.4),
+          ),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: onDismiss,
+            child: Text(
+              'Got it, dismiss ×',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue[700],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
