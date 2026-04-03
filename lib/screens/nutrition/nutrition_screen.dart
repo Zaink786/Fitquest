@@ -88,7 +88,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
         ],
       ),
     );
-    controller.dispose();
     if (result != null) {
       await NutritionService.saveCalorieGoal(result);
       setState(() => _calorieGoal = result);

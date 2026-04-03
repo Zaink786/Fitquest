@@ -12,8 +12,9 @@ class NutritionService {
     if (_cachedFoods != null) return _cachedFoods!;
 
     try {
-      final String csv = await rootBundle
-          .loadString('assets/data/daily_food_nutrition_dataset.csv');
+      final String csv = await rootBundle.loadString(
+        'assets/data/daily_food_nutrition_dataset.csv',
+      );
 
       _cachedFoods = await Isolate.run(() => _parseCsv(csv));
 
@@ -59,8 +60,7 @@ class NutritionService {
     final foods = await loadFoods();
     if (category == 'All') return foods;
     return foods
-        .where((f) =>
-            f.category.toLowerCase().contains(category.toLowerCase()))
+        .where((f) => f.category.toLowerCase().contains(category.toLowerCase()))
         .toList();
   }
 
@@ -76,10 +76,7 @@ class NutritionService {
   Future<Map<String, int>> getDatabaseStats() async {
     final foods = await loadFoods();
     final categories = foods.map((f) => f.primaryCategory).toSet();
-    return {
-      'totalFoods': foods.length,
-      'categories': categories.length,
-    };
+    return {'totalFoods': foods.length, 'categories': categories.length};
   }
 
   // ─── Meal Logging (SharedPreferences) ───
