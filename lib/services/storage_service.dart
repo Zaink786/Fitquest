@@ -18,6 +18,7 @@ class StorageService {
   static const String _unlockedAchievementsKey = 'unlocked_achievements';
   static const String _calorieGoalMetDateKey = 'calorie_goal_met_date';
   static const String _questPointsKey = 'quest_points';
+  static const String _hasSeenOnboardingKey = 'has_seen_onboarding';
 
   static Future<void> initialize() async {
     // Initialize SharedPreferences
@@ -282,6 +283,16 @@ class StorageService {
   static Future<void> addQuestPoints(int points) async {
     final current = getQuestPoints();
     await setQuestPoints(current + points);
+  }
+
+  // Onboarding
+
+  static bool hasSeenOnboarding() {
+    return _prefs.getBool(_hasSeenOnboardingKey) ?? false;
+  }
+
+  static Future<void> setHasSeenOnboarding() async {
+    await _prefs.setBool(_hasSeenOnboardingKey, true);
   }
 
   //  Cleanup
