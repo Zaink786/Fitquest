@@ -60,33 +60,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
     final result = await showDialog<double>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Daily Calorie Goal'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Calories (kcal)',
-            border: OutlineInputBorder(),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final value = double.tryParse(controller.text.trim());
-              if (value != null && value > 0) {
-                Navigator.pop(context, value);
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+      builder: (context) => _CalorieGoalDialog(controller: controller),
     );
     if (result != null) {
       await NutritionService.saveCalorieGoal(result);
@@ -978,6 +952,73 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CalorieGoalDialog extends StatefulWidget {
+  final TextEditingController controller;
+
+  const _CalorieGoalDialog({required this.controller});
+
+  @override
+  State<_CalorieGoalDialog> createState() => _CalorieGoalDialogState();
+}
+
+class _CalorieGoalDialogState extends State<_CalorieGoalDialog> {
+  String? _error;
+
+  static const int _min = 500;
+  static const int _max = 10000;
+
+  void _submit() {
+    final raw = widget.controller.text.trim();
+    final value = double.tryParse(raw);
+
+    if (value == null) {
+      setState(() => _error = 'Please enter a valid number.');
+      return;
+    }
+    if (value < _min) {
+      setState(() => _error = 'Minimum goal is $_min kcal.');
+      return;
+    }
+    if (value > _max) {
+      setState(() => _error = 'Maximum goal is $_max kcal.');
+      return;
+    }
+
+    Navigator.pop(context, value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Daily Calorie Goal'),
+      content: TextField(
+        controller: widget.controller,
+        keyboardType: TextInputType.number,
+        autofocus: true,
+        onChanged: (_) {
+          if (_error != null) setState(() => _error = null);
+        },
+        decoration: InputDecoration(
+          labelText: 'Calories (kcal)',
+          hintText: '$_min – $_max',
+          border: const OutlineInputBorder(),
+          errorText: _error,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _submit,
+          child: const Text('Save'),
+        ),
+      ],
     );
   }
 }
