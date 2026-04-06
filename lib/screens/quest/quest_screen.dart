@@ -82,7 +82,7 @@ class _QuestScreenState extends State<QuestScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star, color: Colors.amber, size: 16),
+                const Icon(Icons.fitness_center, color: Colors.amber, size: 16),
                 const SizedBox(width: 4),
                 Text(
                   '$_questPoints',

@@ -307,10 +307,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(
-                                Icons.fitness_center,
-                                color: Colors.blue,
-                              ),
+                              const Icon(Icons.star, color: Colors.amber),
                               const SizedBox(height: 8),
                               const Text(
                                 'Today\'s XP',
