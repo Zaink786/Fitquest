@@ -56,6 +56,7 @@ class AuthService {
     }
 
     await _persistCurrentUser(prefs, normalizedEmail);
+    await prefs.setBool('pending_welcome_back', true);
     return null;
   }
 

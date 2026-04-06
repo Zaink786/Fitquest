@@ -19,6 +19,7 @@ class StorageService {
   static const String _calorieGoalMetDateKey = 'calorie_goal_met_date';
   static const String _questPointsKey = 'quest_points';
   static const String _hasSeenOnboardingKey = 'has_seen_onboarding';
+  static const String _pendingWelcomeBackKey = 'pending_welcome_back';
 
   static Future<void> initialize() async {
     // Initialize SharedPreferences
@@ -116,17 +117,19 @@ class StorageService {
   }
 
   /// Called on app open to reset the streak if the user missed days.
-  static Future<void> validateStreak() async {
+  static Future<bool> validateStreak() async {
     final lastActive = getLastActiveDate();
-    if (lastActive == null) return;
+    if (lastActive == null) return false;
 
     final today = DateTime.now();
     final lastDate = DateTime.parse(lastActive);
     final daysDiff = today.difference(lastDate).inDays;
 
-    if (daysDiff > 1) {
+    if (daysDiff > 1 && getCurrentStreak() > 0) {
       await setStreak(0);
+      return true;
     }
+    return false;
   }
 
   //  Steps
@@ -297,6 +300,20 @@ class StorageService {
   static Future<void> addQuestPoints(int points) async {
     final current = getQuestPoints();
     await setQuestPoints(current + points);
+  }
+
+  // Welcome-back banner
+
+  static bool hasPendingWelcomeBack() {
+    return _prefs.getBool(_pendingWelcomeBackKey) ?? false;
+  }
+
+  static Future<void> setPendingWelcomeBack() async {
+    await _prefs.setBool(_pendingWelcomeBackKey, true);
+  }
+
+  static Future<void> clearPendingWelcomeBack() async {
+    await _prefs.remove(_pendingWelcomeBackKey);
   }
 
   // Onboarding
