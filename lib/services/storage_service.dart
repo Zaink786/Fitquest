@@ -20,6 +20,7 @@ class StorageService {
   static const String _questPointsKey = 'quest_points';
   static const String _hasSeenOnboardingKey = 'has_seen_onboarding';
   static const String _pendingWelcomeBackKey = 'pending_welcome_back';
+  static const String _pendingOnboardingFlowKey = 'pending_onboarding_flow';
 
   static Future<void> initialize() async {
     // Initialize SharedPreferences
@@ -314,6 +315,20 @@ class StorageService {
 
   static Future<void> clearPendingWelcomeBack() async {
     await _prefs.remove(_pendingWelcomeBackKey);
+  }
+
+  // First-login onboarding flow
+
+  static bool hasPendingOnboardingFlow() {
+    return _prefs.getBool(_pendingOnboardingFlowKey) ?? false;
+  }
+
+  static Future<void> markOnboardingFlowPending() async {
+    await _prefs.setBool(_pendingOnboardingFlowKey, true);
+  }
+
+  static Future<void> clearOnboardingFlow() async {
+    await _prefs.remove(_pendingOnboardingFlowKey);
   }
 
   // Onboarding

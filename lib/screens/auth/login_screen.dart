@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
+import '../../services/storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onLogin;
@@ -50,6 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = false;
       });
     } else {
+      if (_isSignUp) {
+        await StorageService.markOnboardingFlowPending();
+      }
       widget.onLogin();
     }
   }
