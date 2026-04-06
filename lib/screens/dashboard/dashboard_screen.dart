@@ -81,6 +81,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
+      // Expire streak if the user missed days without logging
+      await StorageService.validateStreak();
+
       // Load from storage
       final points = StorageService.getTotalPoints();
       final streak = StorageService.getCurrentStreak();
@@ -129,7 +132,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               // Greeting + date
               Text(
-                'Hi ${_username()} 👋',
+                'Hi ${_username()} ',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 4),

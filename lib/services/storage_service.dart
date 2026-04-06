@@ -115,6 +115,20 @@ class StorageService {
     await setLastActiveDate(todayStr);
   }
 
+  /// Called on app open to reset the streak if the user missed days.
+  static Future<void> validateStreak() async {
+    final lastActive = getLastActiveDate();
+    if (lastActive == null) return;
+
+    final today = DateTime.now();
+    final lastDate = DateTime.parse(lastActive);
+    final daysDiff = today.difference(lastDate).inDays;
+
+    if (daysDiff > 1) {
+      await setStreak(0);
+    }
+  }
+
   //  Steps
 
   static int getTodaySteps() {
