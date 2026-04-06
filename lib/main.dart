@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
+import 'screens/onboarding/onboarding_flow_screen.dart';
 import 'screens/workouts/workouts_screen.dart';
 import 'screens/achievements/achievements_screen.dart';
 import 'screens/settings/settings_screen.dart';
@@ -29,9 +30,14 @@ class FitQuestApp extends StatefulWidget {
 
 class _FitQuestAppState extends State<FitQuestApp> {
   bool _isLoggedIn = AuthService.isLoggedIn();
+  bool _needsOnboarding = StorageService.hasPendingOnboardingFlow();
 
-  void _onLogin() => setState(() => _isLoggedIn = true);
+  void _onLogin() => setState(() {
+    _isLoggedIn = true;
+    _needsOnboarding = StorageService.hasPendingOnboardingFlow();
+  });
   void _onLogout() => setState(() => _isLoggedIn = false);
+  void _onOnboardingFinished() => setState(() => _needsOnboarding = false);
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +45,11 @@ class _FitQuestAppState extends State<FitQuestApp> {
       title: 'FitQuest',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: false, primarySwatch: Colors.blue),
-      home: _isLoggedIn
-          ? HomeScreen(onLogout: _onLogout)
-          : LoginScreen(onLogin: _onLogin),
+      home: !_isLoggedIn
+          ? LoginScreen(onLogin: _onLogin)
+          : _needsOnboarding
+          ? OnboardingFlowScreen(onFinished: _onOnboardingFinished)
+          : HomeScreen(onLogout: _onLogout),
     );
   }
 }
