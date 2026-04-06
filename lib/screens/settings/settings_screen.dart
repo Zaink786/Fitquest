@@ -16,9 +16,18 @@ class SettingsScreen extends StatelessWidget {
         children: [
           // Account section
           ListTile(
-            leading: const CircleAvatar(
+            leading: CircleAvatar(
               backgroundColor: Colors.blue,
-              child: Icon(Icons.person, color: Colors.white),
+              child: Text(
+                (email != null && email.isNotEmpty)
+                    ? email[0].toUpperCase()
+                    : '?',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
             ),
             title: const Text('Account'),
             subtitle: Text(email ?? ''),
