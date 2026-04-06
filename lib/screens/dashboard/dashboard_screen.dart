@@ -17,6 +17,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   bool _showOnboarding = false;
+  String? _welcomeBackMessage;
 
   int _points = 0;
   int _streakDays = 0;
@@ -81,8 +82,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      // Expire streak if the user missed days without logging
-      await StorageService.validateStreak();
+      // Expire streak if the user missed days without logging.
+      // Returns true if the streak was broken right now.
+      final streakBroken = await StorageService.validateStreak();
+
+      // Check and immediately consume the one-shot welcome-back flag.
+      String? welcomeMsg;
+      if (StorageService.hasPendingWelcomeBack()) {
+        await StorageService.clearPendingWelcomeBack();
+        final name = _username();
+        final streak = StorageService.getCurrentStreak();
+        if (streakBroken) {
+          welcomeMsg =
+              'Welcome back $name — your streak reset, but your XP is safe. Start a new one today.';
+        } else if (streak > 0) {
+          welcomeMsg =
+              'Welcome back $name — you\'re on a $streak-day streak, don\'t break it! 🔥';
+        }
+      }
 
       // Load from storage
       final points = StorageService.getTotalPoints();
@@ -95,6 +112,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _streakDays = streak;
         _levelInfo = levelInfo;
         _showOnboarding = !seenOnboarding;
+        _welcomeBackMessage = welcomeMsg;
         _isLoading = false;
       });
     } catch (e) {
@@ -173,6 +191,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ] else ...[
+                // Welcome-back banner (shown once after login)
+                if (_welcomeBackMessage != null) ...[
+                  _WelcomeBackBanner(
+                    message: _welcomeBackMessage!,
+                    onDismiss: () => setState(() => _welcomeBackMessage = null),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // Onboarding card (shown only on first launch)
                 if (_showOnboarding) ...[
                   _OnboardingCard(
@@ -491,6 +518,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _WelcomeBackBanner extends StatelessWidget {
+  final String message;
+  final VoidCallback onDismiss;
+
+  const _WelcomeBackBanner({required this.message, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(16),
+        border: Border(left: BorderSide(color: Colors.blue[700]!, width: 4)),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[800],
+                height: 1.4,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: onDismiss,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Icon(Icons.close, size: 18, color: Colors.grey[500]),
+            ),
+          ),
+        ],
       ),
     );
   }
