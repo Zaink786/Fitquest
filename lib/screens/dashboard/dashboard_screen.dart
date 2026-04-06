@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 import '../../services/exercise_service.dart';
 import '../../services/storage_service.dart';
 import '../../models/level_model.dart';
@@ -24,6 +25,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Exercise database stats
   int _totalExercises = 0;
   int _totalCategories = 0;
+
+  String _username() {
+    final email = AuthService.getCurrentUser() ?? '';
+    final name = email.split('@').first;
+    return name.isEmpty ? 'there' : _capitalise(name);
+  }
+
+  String _capitalise(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 
   String _formatDate(DateTime date) {
     const weekdays = [
@@ -119,16 +129,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               // Greeting + date
               Text(
-                'Hi there 👋',
+                'Hi ${_username()} 👋',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 4),
               Text(
                 _formatDate(now),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Colors.grey[600]),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 24),
 
@@ -272,9 +281,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const SizedBox(height: 8),
                               const Text(
                                 'Today\'s XP',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -301,14 +308,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.local_fire_department,
-                                  color: Colors.red),
+                              const Icon(
+                                Icons.local_fire_department,
+                                color: Colors.red,
+                              ),
                               const SizedBox(height: 8),
                               const Text(
                                 'Streak',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -341,7 +348,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.fitness_center, color: Colors.purple[700]),
+                            Icon(
+                              Icons.fitness_center,
+                              color: Colors.purple[700],
+                            ),
                             const SizedBox(width: 8),
                             const Text(
                               'Exercise Database',
@@ -408,10 +418,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // How to earn XP
                 const Text(
                   'How to earn XP',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 Card(
@@ -424,36 +431,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         dense: true,
                         leading: Icon(Icons.fitness_center, color: Colors.blue),
                         title: Text('Log a workout'),
-                        trailing: Text('+20 XP',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        trailing: Text(
+                          '+20 XP',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       ListTile(
                         dense: true,
-                        leading: Icon(Icons.restaurant_menu, color: Colors.green),
+                        leading: Icon(
+                          Icons.restaurant_menu,
+                          color: Colors.green,
+                        ),
                         title: Text('Log a meal'),
-                        trailing: Text('+5 XP',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        trailing: Text(
+                          '+5 XP',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       ListTile(
                         dense: true,
-                        leading: Icon(Icons.local_fire_department, color: Colors.orange),
+                        leading: Icon(
+                          Icons.local_fire_department,
+                          color: Colors.orange,
+                        ),
                         title: Text('Maintain streak'),
-                        trailing: Text('+10 XP/day',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        trailing: Text(
+                          '+10 XP/day',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       ListTile(
                         dense: true,
                         leading: Icon(Icons.emoji_events, color: Colors.amber),
                         title: Text('Hit calorie goal'),
-                        trailing: Text('+20 XP',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        trailing: Text(
+                          '+20 XP',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       ListTile(
                         dense: true,
-                        leading: Icon(Icons.military_tech, color: Colors.purple),
+                        leading: Icon(
+                          Icons.military_tech,
+                          color: Colors.purple,
+                        ),
                         title: Text('Unlock achievement'),
-                        trailing: Text('+30 XP',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        trailing: Text(
+                          '+30 XP',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
@@ -478,9 +504,7 @@ class _OnboardingCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.blue[50],
         borderRadius: BorderRadius.circular(16),
-        border: Border(
-          left: BorderSide(color: Colors.blue[700]!, width: 4),
-        ),
+        border: Border(left: BorderSide(color: Colors.blue[700]!, width: 4)),
       ),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Column(
@@ -488,16 +512,17 @@ class _OnboardingCard extends StatelessWidget {
         children: [
           const Text(
             'Welcome to FitQuest',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 6),
           Text(
             'XP levels you up from any activity — workouts, meals, streaks, and goals. '
             'Quest Points come exclusively from personal records and unlock new worlds on the Quest map.',
-            style: TextStyle(fontSize: 14, color: Colors.grey[800], height: 1.4),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[800],
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 10),
           GestureDetector(
