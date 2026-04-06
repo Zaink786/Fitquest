@@ -463,6 +463,23 @@ class _WorldCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (!isUnlocked) ...[
+                  const SizedBox(height: 3),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Text(
+                      world.description,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white24,
+                        fontSize: 7.5,
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
+                ],
                 if (isCurrent) ...[
                   const SizedBox(height: 4),
                   Container(
