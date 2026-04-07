@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   static const _usersKey = 'auth_users';
   static const _currentUserKey = 'auth_current_user';
+  static const _createdAtPrefix = 'auth_created_at_';
 
   /// In-memory cache so callers can read the current user synchronously.
   static String? _currentUser;
@@ -15,10 +16,27 @@ class AuthService {
   static Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
     _currentUser = prefs.getString(_currentUserKey);
+    // Backfill creation timestamp for accounts that pre-date this feature.
+    if (_currentUser != null) {
+      final key = '$_createdAtPrefix${_currentUser!.trim().toLowerCase()}';
+      if (prefs.getString(key) == null) {
+        await prefs.setString(key, DateTime.now().toIso8601String());
+      }
+    }
   }
 
   /// The currently logged-in email, or null if no one is logged in.
   static String? getCurrentUser() => _currentUser;
+
+  /// Returns the account creation date for [email], or null if not recorded.
+  static Future<DateTime?> getAccountCreatedAt(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(
+      '$_createdAtPrefix${email.trim().toLowerCase()}',
+    );
+    if (raw == null) return null;
+    return DateTime.tryParse(raw);
+  }
 
   static bool isLoggedIn() => _currentUser != null;
 
@@ -41,6 +59,10 @@ class AuthService {
 
     users[normalizedEmail] = _hash(password);
     await _saveUsers(prefs, users);
+    await prefs.setString(
+      '$_createdAtPrefix$normalizedEmail',
+      DateTime.now().toIso8601String(),
+    );
     await _persistCurrentUser(prefs, normalizedEmail);
     return null;
   }

@@ -1,11 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   final VoidCallback onLogout;
 
   const SettingsScreen({super.key, required this.onLogout});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  DateTime? _memberSince;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMemberSince();
+  }
+
+  Future<void> _loadMemberSince() async {
+    final email = AuthService.getCurrentUser();
+    if (email == null) return;
+    final date = await AuthService.getAccountCreatedAt(email);
+    if (mounted) setState(() => _memberSince = date);
+  }
+
+  VoidCallback get onLogout => widget.onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +53,11 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             title: const Text('Account'),
-            subtitle: Text(email ?? ''),
+            subtitle: Text(
+              _memberSince != null
+                  ? '${email ?? ''}  ·  Member since ${DateFormat('MMMM yyyy').format(_memberSince!)}'
+                  : email ?? '',
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
