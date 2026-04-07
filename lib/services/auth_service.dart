@@ -8,6 +8,7 @@ class AuthService {
   static const _usersKey = 'auth_users';
   static const _currentUserKey = 'auth_current_user';
   static const _createdAtPrefix = 'auth_created_at_';
+  static const _displayNamePrefix = 'auth_display_name_';
 
   /// In-memory cache so callers can read the current user synchronously.
   static String? _currentUser;
@@ -15,6 +16,7 @@ class AuthService {
   /// Call once during app startup (before runApp).
   static Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
+    _prefsSync = prefs;
     _currentUser = prefs.getString(_currentUserKey);
     // Backfill creation timestamp for accounts that pre-date this feature.
     if (_currentUser != null) {
@@ -40,8 +42,23 @@ class AuthService {
 
   static bool isLoggedIn() => _currentUser != null;
 
+  /// Returns the stored display name for the current user, or null.
+  static String? getDisplayName() {
+    if (_currentUser == null) return null;
+    final prefs = _prefsSync;
+    if (prefs == null) return null;
+    return prefs.getString('$_displayNamePrefix${_currentUser!}');
+  }
+
+  /// SharedPreferences handle cached during [initialize].
+  static SharedPreferences? _prefsSync;
+
   /// Returns null on success, or an error message on failure.
-  static Future<String?> signUp(String email, String password) async {
+  static Future<String?> signUp(
+    String email,
+    String password, {
+    String? displayName,
+  }) async {
     final normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail.contains('@') || !normalizedEmail.contains('.')) {
       return 'Please enter a valid email address';
@@ -63,6 +80,12 @@ class AuthService {
       '$_createdAtPrefix$normalizedEmail',
       DateTime.now().toIso8601String(),
     );
+    if (displayName != null && displayName.trim().isNotEmpty) {
+      await prefs.setString(
+        '$_displayNamePrefix$normalizedEmail',
+        displayName.trim(),
+      );
+    }
     await _persistCurrentUser(prefs, normalizedEmail);
     return null;
   }

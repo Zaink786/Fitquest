@@ -13,6 +13,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _displayNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -23,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _displayNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -40,7 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
 
     final error = _isSignUp
-        ? await AuthService.signUp(email, password)
+        ? await AuthService.signUp(
+            email,
+            password,
+            displayName: _displayNameController.text,
+          )
         : await AuthService.login(email, password);
 
     if (!mounted) return;
@@ -99,6 +105,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(fontSize: 15, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 36),
+
+                  // Display name (sign-up only)
+                  if (_isSignUp) ...[
+                    TextFormField(
+                      controller: _displayNameController,
+                      textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: 'Display name (optional)',
+                        prefixIcon: const Icon(Icons.person_outline),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
 
                   // Email field
                   TextFormField(
