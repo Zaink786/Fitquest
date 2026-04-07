@@ -28,6 +28,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _totalCategories = 0;
 
   String _username() {
+    final displayName = AuthService.getDisplayName();
+    if (displayName != null && displayName.isNotEmpty) return displayName;
     final email = AuthService.getCurrentUser() ?? '';
     final name = email.split('@').first;
     return name.isEmpty ? 'there' : _capitalise(name);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/quest_model.dart';
+import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 
 final _displayWorlds = questWorlds.reversed.toList();
@@ -386,9 +387,11 @@ class _WorldCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 104,
-      decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: isUnlocked ? () => _showWorldInfo(context) : null,
+      child: Container(
+        height: 104,
+        decoration: BoxDecoration(
         gradient: isUnlocked
             ? LinearGradient(
                 colors: world.gradient,
@@ -504,6 +507,51 @@ class _WorldCard extends StatelessWidget {
                 ],
               ],
             ),
+          ),
+        ],
+      ),
+      ),
+    );
+  }
+
+  void _showWorldInfo(BuildContext context) {
+    final name = AuthService.getDisplayName() ??
+        (AuthService.getCurrentUser()?.split('@').first ?? 'You');
+    final capitalName =
+        name.isEmpty ? 'You' : name[0].toUpperCase() + name.substring(1);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(world.icon, size: 48, color: world.gradient.first),
+            const SizedBox(height: 12),
+            Text(
+              isCurrent
+                  ? '$capitalName is exploring ${world.name}'
+                  : '$capitalName unlocked ${world.name}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              world.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Nice!'),
           ),
         ],
       ),

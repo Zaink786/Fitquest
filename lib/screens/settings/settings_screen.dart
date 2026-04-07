@@ -33,6 +33,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final email = AuthService.getCurrentUser();
+    final displayName = AuthService.getDisplayName();
+    final initial = (displayName != null && displayName.isNotEmpty)
+        ? displayName[0].toUpperCase()
+        : (email != null && email.isNotEmpty)
+            ? email[0].toUpperCase()
+            : '?';
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -42,9 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: CircleAvatar(
               backgroundColor: Colors.blue,
               child: Text(
-                (email != null && email.isNotEmpty)
-                    ? email[0].toUpperCase()
-                    : '?',
+                initial,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
