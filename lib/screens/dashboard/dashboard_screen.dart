@@ -3,6 +3,7 @@ import '../../services/auth_service.dart';
 import '../../services/exercise_service.dart';
 import '../../services/storage_service.dart';
 import '../../models/level_model.dart';
+import '../../models/quest_model.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -90,6 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       // Check and immediately consume the one-shot welcome-back flag.
       String? welcomeMsg;
+      bool showProgressSummary = false;
       if (StorageService.hasPendingWelcomeBack()) {
         await StorageService.clearPendingWelcomeBack();
         final name = _username();
@@ -101,6 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           welcomeMsg =
               'Welcome back $name — you\'re on a $streak-day streak, don\'t break it! 🔥';
         }
+        showProgressSummary = true;
       }
 
       // Load from storage
@@ -117,6 +120,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _welcomeBackMessage = welcomeMsg;
         _isLoading = false;
       });
+
+      if (showProgressSummary && mounted) {
+        // Small delay so the dashboard paints first.
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted) _showProgressSummary();
+        });
+      }
     } catch (e) {
       setState(() {
         _errorMessage = 'Failed to load activity data';
@@ -135,6 +145,81 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (e) {
       print('Error loading exercise stats: $e');
     }
+  }
+
+  void _showProgressSummary() {
+    final name = _username();
+    final level = _levelInfo.level;
+    final totalXp = _levelInfo.currentXp;
+    final streak = _streakDays;
+    final questPoints = StorageService.getQuestPoints();
+    final nextWorld = getNextWorld(questPoints);
+    final ptsToNext =
+        nextWorld != null ? nextWorld.requiredPoints - questPoints : 0;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        // Auto-dismiss after 3 seconds.
+        Future.delayed(const Duration(seconds: 3), () {
+          if (ctx.mounted) Navigator.of(ctx).pop();
+        });
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Your progress, $name',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _SummaryRow(
+                icon: Icons.star,
+                color: Colors.amber,
+                label: 'Level $level',
+                detail: '$totalXp XP total',
+              ),
+              const SizedBox(height: 10),
+              _SummaryRow(
+                icon: Icons.local_fire_department,
+                color: Colors.deepOrange,
+                label: streak > 0 ? '$streak-day streak' : 'No active streak',
+                detail: streak > 0 ? 'Keep it going!' : 'Start one today',
+              ),
+              const SizedBox(height: 10),
+              _SummaryRow(
+                icon: Icons.fitness_center,
+                color: Colors.blue,
+                label: '$questPoints Quest Points',
+                detail: nextWorld != null
+                    ? '$ptsToNext pts to ${nextWorld.name}'
+                    : 'All worlds unlocked!',
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -611,6 +696,48 @@ class _OnboardingCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String detail;
+
+  const _SummaryRow({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.detail,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 22),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              Text(
+                detail,
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
