@@ -20,23 +20,48 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Future<void> _loadAchievements() async {
-    final unlockedIds = StorageService.getUnlockedAchievements();
     final streak = StorageService.getCurrentStreak();
     final dailyPoints = StorageService.getDailyPoints();
-    final workoutCount = StorageService.getAllWorkouts().length;
-    final meals = await NutritionService.getAllMeals();
-    final mealCount = meals.length;
-
     final questPoints = StorageService.getQuestPoints();
 
-    final progressMap = {
-      'first_workout': workoutCount,
+    // Use today's data for daily-scoped achievements.
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final allWorkouts = StorageService.getAllWorkouts();
+    final todayWorkouts =
+        allWorkouts.where((w) => !w.date.isBefore(todayStart)).length;
+    final todayMeals = await NutritionService.getTodaysMeals();
+    final todayMealCount = todayMeals.length;
+
+    final progressMap = <String, int>{
+      'first_workout': todayWorkouts,
       'first_100_points': dailyPoints,
       'consistency_starter': streak,
-      'first_meal_logged': mealCount,
+      'first_meal_logged': todayMealCount,
       'world_traveller': questPoints,
       'dedicated': streak,
     };
+
+    // Targets that define "complete" for achievements without an explicit
+    // targetValue (these count as done at >= 1).
+    const implicitTarget = {
+      'first_workout': 1,
+      'first_meal_logged': 1,
+      'first_pr': 1,
+    };
+
+    // Auto-unlock any achievement whose progress meets its target.
+    for (final a in Achievements.allAchievements) {
+      final progress = progressMap[a.id] ?? 0;
+      final target = a.targetValue ?? implicitTarget[a.id];
+      if (target != null && progress >= target) {
+        if (!StorageService.isAchievementUnlocked(a.id)) {
+          await StorageService.unlockAchievement(a.id);
+        }
+      }
+    }
+
+    final unlockedIds = StorageService.getUnlockedAchievements();
 
     setState(() {
       _achievements = Achievements.allAchievements.map((achievement) {

@@ -16,6 +16,7 @@ class StorageService {
   static const String _dailyPointsKey = 'daily_points';
   static const String _dailyPointsDateKey = 'daily_points_date';
   static const String _unlockedAchievementsKey = 'unlocked_achievements';
+  static const String _achievementsDateKey = 'achievements_date';
   static const String _calorieGoalMetDateKey = 'calorie_goal_met_date';
   static const String _questPointsKey = 'quest_points';
   static const String _hasSeenOnboardingKey = 'has_seen_onboarding';
@@ -236,7 +237,20 @@ class StorageService {
   // Achievements
 
   static List<String> getUnlockedAchievements() {
+    _resetAchievementsIfNewDay();
     return _prefs.getStringList(_unlockedAchievementsKey) ?? [];
+  }
+
+  /// Clears unlocked achievements at the start of each new day.
+  static void _resetAchievementsIfNewDay() {
+    final today = DateTime.now();
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final savedDate = _prefs.getString(_achievementsDateKey);
+    if (savedDate != todayStr) {
+      _prefs.setStringList(_unlockedAchievementsKey, []);
+      _prefs.setString(_achievementsDateKey, todayStr);
+    }
   }
 
   static bool isAchievementUnlocked(String achievementId) {
