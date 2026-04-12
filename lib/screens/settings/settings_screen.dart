@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
+import '../../services/theme_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onLogout;
@@ -67,6 +68,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Log Out'),
             onTap: () => _confirmLogout(context),
+          ),
+          const Divider(),
+          ValueListenableBuilder<ThemeMode>(
+            valueListenable: ThemeService.themeNotifier,
+            builder: (context, themeMode, _) {
+              return SwitchListTile(
+                secondary: const Icon(Icons.dark_mode_outlined),
+                title: const Text('Dark Mode'),
+                value: themeMode == ThemeMode.dark,
+                onChanged: (value) => ThemeService.setDark(value),
+              );
+            },
           ),
           const Divider(),
           const ListTile(
