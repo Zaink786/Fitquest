@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
-import '../../services/exercise_service.dart';
 import '../../services/storage_service.dart';
 import '../../models/level_model.dart';
 import '../../models/quest_model.dart';
@@ -13,20 +12,13 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final ExerciseService _exerciseService = ExerciseService();
-
   bool _isLoading = true;
   String? _errorMessage;
-  bool _showOnboarding = false;
   String? _welcomeBackMessage;
 
   int _points = 0;
   int _streakDays = 0;
   late LevelInfo _levelInfo;
-
-  // Exercise database stats
-  int _totalExercises = 0;
-  int _totalCategories = 0;
 
   String _username() {
     final displayName = AuthService.getDisplayName();
@@ -75,7 +67,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _loadDashboardData();
-    _loadExerciseStats();
   }
 
   Future<void> _loadDashboardData() async {
@@ -110,13 +101,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final points = StorageService.getTotalPoints();
       final streak = StorageService.getCurrentStreak();
       final levelInfo = StorageService.getLevelInfo();
-      final seenOnboarding = StorageService.hasSeenOnboarding();
 
       setState(() {
         _points = points;
         _streakDays = streak;
         _levelInfo = levelInfo;
-        _showOnboarding = !seenOnboarding;
         _welcomeBackMessage = welcomeMsg;
         _isLoading = false;
       });
@@ -132,18 +121,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _errorMessage = 'Failed to load activity data';
         _isLoading = false;
       });
-    }
-  }
-
-  Future<void> _loadExerciseStats() async {
-    try {
-      final stats = await _exerciseService.getDatabaseStats();
-      setState(() {
-        _totalExercises = stats['totalExercises'] ?? 0;
-        _totalCategories = stats['categories'] ?? 0;
-      });
-    } catch (e) {
-      print('Error loading exercise stats: $e');
     }
   }
 
@@ -232,288 +209,250 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final questPoints = StorageService.getQuestPoints();
     final dailyPoints = StorageService.getDailyPoints();
 
-    return SafeArea(
-      child: RefreshIndicator(
-        onRefresh: _loadDashboardData,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Greeting + date
-              Text(
-                'Hi ${_username()} 👋',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _formatDate(now),
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 14),
-
-              if (_isLoading) ...[
-                const Center(child: CircularProgressIndicator()),
-              ] else if (_errorMessage != null) ...[
-                Card(
-                  color: Colors.red[50],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _loadDashboardData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Greeting + date
+                Text(
+                  'Hi ${_username()} 👋',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
                   ),
-                  child: Padding(
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _formatDate(now),
+                  style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                ),
+                const SizedBox(height: 14),
+
+                if (_isLoading) ...[
+                  const Center(child: CircularProgressIndicator()),
+                ] else if (_errorMessage != null) ...[
+                  Card(
+                    color: Colors.red[50],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: _loadDashboardData,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  // Welcome-back banner (shown once after login)
+                  if (_welcomeBackMessage != null) ...[
+                    _WelcomeBackBanner(
+                      message: _welcomeBackMessage!,
+                      onDismiss: () =>
+                          setState(() => _welcomeBackMessage = null),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
+                  // ── Level card ──
+                  Container(
                     padding: const EdgeInsets.all(16),
-                    child: Row(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white12 : const Color(0xFFDCE3FF).withValues(alpha: 0.5),
+                      ),
+                    ),
+                    child: Column(
                       children: [
-                        const Icon(Icons.error, color: Colors.red),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: const TextStyle(color: Colors.red),
+                        Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1A237E),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${_levelInfo.level}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Level ${_levelInfo.level}',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  '$_points XP total',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: LinearProgressIndicator(
+                            value: _levelInfo.progress,
+                            minHeight: 10,
+                            backgroundColor: isDark ? Colors.grey[700] : Colors.grey[300],
+                            valueColor: const AlwaysStoppedAnimation(
+                              Color(0xFF1A237E),
+                            ),
                           ),
                         ),
-                        TextButton(
-                          onPressed: _loadDashboardData,
-                          child: const Text('Retry'),
+                        const SizedBox(height: 6),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '${_levelInfo.xpIntoLevel} / ${_levelInfo.xpForNextLevel} XP to next level',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ] else ...[
-                // Welcome-back banner (shown once after login)
-                if (_welcomeBackMessage != null) ...[
-                  _WelcomeBackBanner(
-                    message: _welcomeBackMessage!,
-                    onDismiss: () => setState(() => _welcomeBackMessage = null),
-                  ),
-                  const SizedBox(height: 16),
-                ],
 
-                // Onboarding card (shown only for new users)
-                if (_showOnboarding) ...[
-                  _OnboardingCard(
-                    onDismiss: () async {
-                      await StorageService.setHasSeenOnboarding();
-                      setState(() => _showOnboarding = false);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                  const SizedBox(height: 12),
 
-                // ── Level card ──
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
+                  // ── Three stat cards ──
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF2979FF),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${_levelInfo.level}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Level ${_levelInfo.level}',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '$_points XP total',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: LinearProgressIndicator(
-                          value: _levelInfo.progress,
-                          minHeight: 10,
-                          backgroundColor: Colors.grey[300],
-                          valueColor: const AlwaysStoppedAnimation(
-                            Color(0xFF2979FF),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '${_levelInfo.xpIntoLevel} / ${_levelInfo.xpForNextLevel} XP to next level',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // ── Three stat cards ──
-                Row(
-                  children: [
-                    _StatCard(
-                      icon: Icons.fitness_center,
-                      iconColor: Colors.grey[700]!,
-                      value: '$dailyPoints',
-                      label: "Today's\nXP",
-                    ),
-                    const SizedBox(width: 10),
-                    _StatCard(
-                      icon: Icons.local_fire_department,
-                      iconColor: Colors.deepOrange,
-                      value: '$_streakDays',
-                      label: 'Day streak',
-                    ),
-                    const SizedBox(width: 10),
-                    _StatCard(
-                      icon: Icons.star,
-                      iconColor: Colors.amber,
-                      value: '$questPoints',
-                      label: 'Quest pts',
-                      valueColor: Colors.amber[700],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // ── How to earn ──
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'HOW TO EARN',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _EarnRow(
+                      _StatCard(
                         icon: Icons.fitness_center,
-                        label: 'Log a workout',
-                        reward: '+20 XP',
-                        color: Colors.grey[700]!,
+                        iconColor: Colors.grey[700]!,
+                        value: '$dailyPoints',
+                        label: "Today's\nXP",
                       ),
-                      const SizedBox(height: 10),
-                      _EarnRow(
-                        icon: Icons.restaurant,
-                        label: 'Log a meal',
-                        reward: '+5 XP',
-                        color: Colors.grey[700]!,
-                      ),
-                      const SizedBox(height: 10),
-                      _EarnRow(
+                      const SizedBox(width: 10),
+                      _StatCard(
                         icon: Icons.local_fire_department,
-                        label: 'Daily streak',
-                        reward: '+10 XP',
-                        color: Colors.deepOrange,
+                        iconColor: Colors.red,
+                        value: '$_streakDays',
+                        label: 'Day streak',
                       ),
-                      const SizedBox(height: 10),
-                      _EarnRow(
-                        icon: Icons.emoji_events,
-                        label: 'Calorie goal',
-                        reward: '+20 XP',
-                        color: Colors.amber[700]!,
-                      ),
-                      const SizedBox(height: 10),
-                      _EarnRow(
+                      const SizedBox(width: 10),
+                      _StatCard(
                         icon: Icons.star,
-                        label: 'Personal record',
-                        reward: '+50 Quest',
-                        color: Colors.amber,
-                        rewardColor: const Color(0xFF2979FF),
+                        iconColor: const Color(0xFFF9A825),
+                        value: '$questPoints',
+                        label: 'Quest pts',
+                        valueColor: const Color(0xFFF9A825),
                       ),
                     ],
                   ),
-                ),
 
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
-                // ── Exercise database footer ──
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.fitness_center,
-                        size: 18,
-                        color: Colors.grey[600],
+                  // ── How to earn ──
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? Colors.white12 : const Color(0xFFDCE3FF).withValues(alpha: 0.5),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '$_totalExercises exercises · $_totalCategories categories',
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'HOW TO EARN',
                           style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
                           ),
                         ),
-                      ),
-                      Text(
-                        'Browse ›',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.blue[700],
+                        const SizedBox(height: 12),
+                        _EarnRow(
+                          icon: Icons.fitness_center,
+                          label: 'Log a workout',
+                          reward: '+20 XP',
+                          color: Colors.grey[700]!,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        _EarnRow(
+                          icon: Icons.restaurant,
+                          label: 'Log a meal',
+                          reward: '+5 XP',
+                          color: Colors.grey[700]!,
+                        ),
+                        const SizedBox(height: 10),
+                        _EarnRow(
+                          icon: Icons.local_fire_department,
+                          label: 'Daily streak',
+                          reward: '+10 XP',
+                          color: Colors.deepOrange,
+                        ),
+                        const SizedBox(height: 10),
+                        _EarnRow(
+                          icon: Icons.emoji_events,
+                          label: 'Calorie goal',
+                          reward: '+20 XP',
+                          color: Colors.amber[700]!,
+                        ),
+                        Divider(height: 1, color: isDark ? Colors.white12 : const Color(0xFFF0F2FF)),
+                        const SizedBox(height: 10),
+                        _EarnRow(
+                          icon: Icons.star,
+                          label: 'Personal record',
+                          reward: '+50 Quest',
+                          color: Colors.amber,
+                          rewardColor: const Color(0xFFF9A825),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -529,9 +468,10 @@ class _WelcomeBackBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.blue[50],
+        color: isDark ? const Color(0xFF1A2744) : Colors.blue[50],
         borderRadius: BorderRadius.circular(16),
         border: Border(left: BorderSide(color: Colors.blue[700]!, width: 4)),
       ),
@@ -544,7 +484,7 @@ class _WelcomeBackBanner extends StatelessWidget {
               message,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[800],
+                color: isDark ? Colors.grey[300] : Colors.grey[800],
                 height: 1.4,
               ),
             ),
@@ -553,61 +493,7 @@ class _WelcomeBackBanner extends StatelessWidget {
             onTap: onDismiss,
             child: Padding(
               padding: const EdgeInsets.only(left: 12),
-              child: Icon(Icons.close, size: 18, color: Colors.grey[500]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OnboardingCard extends StatelessWidget {
-  final VoidCallback onDismiss;
-
-  const _OnboardingCard({required this.onDismiss});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: Colors.blue[700]!, width: 4)),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Welcome to FitQuest',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF2979FF),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'XP levels you up from any activity. '
-            'Quest Points come only from personal records — beat your '
-            'previous weight or reps to unlock new worlds.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[800],
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: onDismiss,
-            child: Text(
-              'Got it ×',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF2979FF),
-              ),
+              child: Icon(Icons.close, size: 18, color: isDark ? Colors.grey[500] : Colors.grey[500]),
             ),
           ),
         ],
@@ -633,11 +519,12 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: isDark ? Colors.grey[850] : Colors.grey[100],
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -656,7 +543,7 @@ class _StatCard extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
             ),
           ],
         ),
