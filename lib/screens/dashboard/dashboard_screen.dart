@@ -212,7 +212,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 10),
               _EarnRow(
                 icon: Icons.fitness_center,
-                color: Colors.blue,
+                color: const Color(0xFF2979FF),
                 label: '$questPoints Quest Points',
                 reward: nextWorld != null
                     ? '$ptsToNext to ${nextWorld.name}'
@@ -237,7 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onRefresh: _loadDashboardData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -254,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _formatDate(now),
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
 
               if (_isLoading) ...[
                 const Center(child: CircularProgressIndicator()),
@@ -320,7 +320,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             width: 52,
                             height: 52,
                             decoration: BoxDecoration(
-                              color: Colors.blue,
+                              color: const Color(0xFF2979FF),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Center(
@@ -363,7 +363,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           value: _levelInfo.progress,
                           minHeight: 10,
                           backgroundColor: Colors.grey[300],
-                          valueColor: const AlwaysStoppedAnimation(Colors.blue),
+                          valueColor: const AlwaysStoppedAnimation(
+                            Color(0xFF2979FF),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -405,11 +407,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       iconColor: Colors.amber,
                       value: '$questPoints',
                       label: 'Quest pts',
+                      valueColor: Colors.amber[700],
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
                 // ── How to earn ──
                 Container(
@@ -463,13 +466,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         label: 'Personal record',
                         reward: '+50 Quest',
                         color: Colors.amber,
-                        rewardColor: Colors.blue,
+                        rewardColor: const Color(0xFF2979FF),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // ── Exercise database footer ──
                 Container(
@@ -581,7 +584,7 @@ class _OnboardingCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: const Color(0xFF2979FF),
             ),
           ),
           const SizedBox(height: 6),
@@ -603,7 +606,7 @@ class _OnboardingCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.blue[700],
+                color: const Color(0xFF2979FF),
               ),
             ),
           ),
@@ -618,12 +621,14 @@ class _StatCard extends StatelessWidget {
   final Color iconColor;
   final String value;
   final String label;
+  final Color? valueColor;
 
   const _StatCard({
     required this.icon,
     required this.iconColor,
     required this.value,
     required this.label,
+    this.valueColor,
   });
 
   @override
@@ -641,7 +646,11 @@ class _StatCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: valueColor,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
@@ -683,7 +692,7 @@ class _EarnRow extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: rewardColor ?? Colors.blue,
+            color: rewardColor ?? const Color(0xFF2979FF),
           ),
         ),
       ],
