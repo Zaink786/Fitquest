@@ -104,6 +104,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
+  static const _pipColors = [
+    Color(0xFF1A237E), // Dashboard
+    Color(0xFF1A237E), // Workouts
+    Color(0xFF1B5E20), // Nutrition
+    Color(0xFF4A148C), // Achievements
+    Colors.amber,     // Quest
+    Color(0xFF212121), // Settings
+  ];
+
   late final List<Widget> _screens;
 
   @override
@@ -119,6 +128,26 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
+  Widget _navIcon(IconData icon, int tabIndex) {
+    final isActive = _currentIndex == tabIndex;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: isActive ? 20 : 0,
+          height: 3,
+          decoration: BoxDecoration(
+            color: isActive ? _pipColors[tabIndex] : Colors.transparent,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(height: 3),
+        Icon(icon),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,36 +156,58 @@ class _HomeScreenState extends State<HomeScreen> {
       resizeToAvoidBottomInset: false,
       body: _screens[_currentIndex],
 
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: BottomNavigationBar(
-          showUnselectedLabels: true,
-          showSelectedLabels: true,
-          currentIndex: _currentIndex,
-          type: BottomNavigationBarType.fixed,
-          onTap: (i) => setState(() => _currentIndex = i),
-
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.fitness_center),
-              label: 'Workouts',
+      bottomNavigationBar: Builder(
+        builder: (context) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final navBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+          final borderColor = isDark ? Colors.white12 : const Color(0xFFE8E8E8);
+          return Container(
+            decoration: BoxDecoration(
+              color: navBg,
+              border: Border(
+                top: BorderSide(color: borderColor, width: 0.5),
+              ),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.restaurant_menu),
-              label: 'Nutrition',
+            child: SafeArea(
+              top: false,
+              child: BottomNavigationBar(
+                backgroundColor: navBg,
+                elevation: 0,
+                showUnselectedLabels: true,
+                showSelectedLabels: true,
+                currentIndex: _currentIndex,
+                type: BottomNavigationBarType.fixed,
+                onTap: (i) => setState(() => _currentIndex = i),
+                items: [
+                  BottomNavigationBarItem(
+                    icon: _navIcon(Icons.home, 0),
+                    label: 'Dashboard',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _navIcon(Icons.fitness_center, 1),
+                    label: 'Workouts',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _navIcon(Icons.restaurant_menu, 2),
+                    label: 'Nutrition',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _navIcon(Icons.emoji_events, 3),
+                    label: 'Achievements',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _navIcon(Icons.explore, 4),
+                    label: 'Quest',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _navIcon(Icons.settings, 5),
+                    label: 'Settings',
+                  ),
+                ],
+              ),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.emoji_events),
-              label: 'Achievements',
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Quest'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
