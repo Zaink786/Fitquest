@@ -1014,10 +1014,7 @@ class _CalorieGoalDialogState extends State<_CalorieGoalDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        ElevatedButton(
-          onPressed: _submit,
-          child: const Text('Save'),
-        ),
+        ElevatedButton(onPressed: _submit, child: const Text('Save')),
       ],
     );
   }

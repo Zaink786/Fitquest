@@ -392,139 +392,139 @@ class _WorldCard extends StatelessWidget {
       child: Container(
         height: 104,
         decoration: BoxDecoration(
-        gradient: isUnlocked
-            ? LinearGradient(
-                colors: world.gradient,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : const LinearGradient(
-                colors: [Color(0xFF1A3A6B), Color(0xFF132D52)],
-              ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isCurrent ? Colors.amber : Colors.white24,
-          width: isCurrent ? 2 : 1,
-        ),
-        boxShadow: isCurrent
-            ? [
-                BoxShadow(
-                  color: Colors.amber.withValues(alpha: 0.35),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                  offset: const Offset(0, 3),
+          gradient: isUnlocked
+              ? LinearGradient(
+                  colors: world.gradient,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : const LinearGradient(
+                  colors: [Color(0xFF1A3A6B), Color(0xFF132D52)],
                 ),
-              ]
-            : isUnlocked
-            ? [
-                BoxShadow(
-                  color: world.gradient.first.withValues(alpha: 0.35),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ]
-            : null,
-      ),
-      child: Stack(
-        children: [
-          if (isUnlocked && !isCurrent)
-            Positioned(
-              top: 5,
-              right: 5,
-              child: Container(
-                width: 20,
-                height: 20,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF00C853),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check, color: Colors.white, size: 13),
-              ),
-            ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  isUnlocked ? world.icon : Icons.lock_outline,
-                  color: isUnlocked ? Colors.white : Colors.white38,
-                  size: 26,
-                ),
-                const SizedBox(height: 5),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: Text(
-                    world.name,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isUnlocked ? Colors.white : Colors.white38,
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                    ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isCurrent ? Colors.amber : Colors.white24,
+            width: isCurrent ? 2 : 1,
+          ),
+          boxShadow: isCurrent
+              ? [
+                  BoxShadow(
+                    color: Colors.amber.withValues(alpha: 0.35),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                    offset: const Offset(0, 3),
                   ),
+                ]
+              : isUnlocked
+              ? [
+                  BoxShadow(
+                    color: world.gradient.first.withValues(alpha: 0.35),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Stack(
+          children: [
+            if (isUnlocked && !isCurrent)
+              Positioned(
+                top: 5,
+                right: 5,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF00C853),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white, size: 13),
                 ),
-                if (!isUnlocked) ...[
-                  const SizedBox(height: 3),
+              ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isUnlocked ? world.icon : Icons.lock_outline,
+                    color: isUnlocked ? Colors.white : Colors.white38,
+                    size: 26,
+                  ),
+                  const SizedBox(height: 5),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: Text(
-                      world.description,
+                      world.name,
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white24,
-                        fontSize: 7.5,
+                      style: TextStyle(
+                        color: isUnlocked ? Colors.white : Colors.white38,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
                         height: 1.2,
                       ),
                     ),
                   ),
-                ],
-                if (isCurrent) ...[
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.amber,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'YOU ARE HERE',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 7.5,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.3,
+                  if (!isUnlocked) ...[
+                    const SizedBox(height: 3),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Text(
+                        world.description,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white24,
+                          fontSize: 7.5,
+                          height: 1.2,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
+                  if (isCurrent) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'YOU ARE HERE',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 7.5,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
 
   void _showWorldInfo(BuildContext context) {
-    final name = AuthService.getDisplayName() ??
+    final name =
+        AuthService.getDisplayName() ??
         (AuthService.getCurrentUser()?.split('@').first ?? 'You');
-    final capitalName =
-        name.isEmpty ? 'You' : name[0].toUpperCase() + name.substring(1);
+    final capitalName = name.isEmpty
+        ? 'You'
+        : name[0].toUpperCase() + name.substring(1);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -535,10 +535,7 @@ class _WorldCard extends StatelessWidget {
                   ? '$capitalName is exploring ${world.name}'
                   : '$capitalName unlocked ${world.name}',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(

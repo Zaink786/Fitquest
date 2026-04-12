@@ -28,8 +28,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
     final allWorkouts = StorageService.getAllWorkouts();
-    final todayWorkouts =
-        allWorkouts.where((w) => !w.date.isBefore(todayStart)).length;
+    final todayWorkouts = allWorkouts
+        .where((w) => !w.date.isBefore(todayStart))
+        .length;
     final todayMeals = await NutritionService.getTodaysMeals();
     final todayMealCount = todayMeals.length;
 

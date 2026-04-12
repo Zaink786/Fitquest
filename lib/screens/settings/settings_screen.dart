@@ -37,8 +37,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final initial = (displayName != null && displayName.isNotEmpty)
         ? displayName[0].toUpperCase()
         : (email != null && email.isNotEmpty)
-            ? email[0].toUpperCase()
-            : '?';
+        ? email[0].toUpperCase()
+        : '?';
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
