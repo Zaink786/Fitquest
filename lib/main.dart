@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
@@ -44,7 +45,11 @@ class _FitQuestAppState extends State<FitQuestApp> {
     return MaterialApp(
       title: 'FitQuest',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: false, primarySwatch: Colors.blue),
+      theme: ThemeData(
+        useMaterial3: false,
+        primarySwatch: Colors.blue,
+        fontFamily: Platform.isAndroid ? 'Inter' : null,
+      ),
       home: !_isLoggedIn
           ? LoginScreen(onLogin: _onLogin)
           : _needsOnboarding
