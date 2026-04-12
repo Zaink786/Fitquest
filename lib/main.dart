@@ -10,14 +10,16 @@ import 'screens/nutrition/nutrition_screen.dart';
 import 'screens/quest/quest_screen.dart';
 import 'services/auth_service.dart';
 import 'services/storage_service.dart';
+import 'services/theme_service.dart';
 
 void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize storage and auth
+  // Initialize storage, auth, and theme
   await StorageService.initialize();
   await AuthService.initialize();
+  await ThemeService.initialize();
 
   runApp(const FitQuestApp());
 }
@@ -40,21 +42,52 @@ class _FitQuestAppState extends State<FitQuestApp> {
   void _onLogout() => setState(() => _isLoggedIn = false);
   void _onOnboardingFinished() => setState(() => _needsOnboarding = false);
 
+  ThemeData _buildTheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    final font = Platform.isAndroid ? 'Inter' : null;
+    return ThemeData(
+      useMaterial3: false,
+      primarySwatch: Colors.blue,
+      fontFamily: font,
+      brightness: brightness,
+      scaffoldBackgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+      cardColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      appBarTheme: AppBarTheme(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.blue,
+        foregroundColor: Colors.white,
+        elevation: 4,
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.blue.withValues(alpha: 0.6),
+        elevation: 8,
+      ),
+      dividerColor: isDark ? Colors.white24 : Colors.black12,
+      dialogTheme: DialogThemeData(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'FitQuest',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: false,
-        primarySwatch: Colors.blue,
-        fontFamily: Platform.isAndroid ? 'Inter' : null,
-      ),
-      home: !_isLoggedIn
-          ? LoginScreen(onLogin: _onLogin)
-          : _needsOnboarding
-          ? OnboardingFlowScreen(onFinished: _onOnboardingFinished)
-          : HomeScreen(onLogout: _onLogout),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeService.themeNotifier,
+      builder: (context, themeMode, _) {
+        return MaterialApp(
+          title: 'FitQuest',
+          debugShowCheckedModeBanner: false,
+          theme: _buildTheme(Brightness.light),
+          darkTheme: _buildTheme(Brightness.dark),
+          themeMode: themeMode,
+          home: !_isLoggedIn
+              ? LoginScreen(onLogin: _onLogin)
+              : _needsOnboarding
+              ? OnboardingFlowScreen(onFinished: _onOnboardingFinished)
+              : HomeScreen(onLogout: _onLogout),
+        );
+      },
     );
   }
 }
@@ -97,18 +130,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: BottomNavigationBar(
-          backgroundColor: Colors.white, // 👈 solid background (visible)
-          selectedItemColor: Colors.blue, // 👈 active tab color
-          unselectedItemColor: Colors.blue.withOpacity(
-            0.75,
-          ), // 👈 unselected also blue-ish
-          selectedIconTheme: const IconThemeData(color: Colors.blue),
-          unselectedIconTheme: IconThemeData(
-            color: Colors.blue.withOpacity(0.75),
-          ),
           showUnselectedLabels: true,
           showSelectedLabels: true,
-          elevation: 8,
           currentIndex: _currentIndex,
           type: BottomNavigationBarType.fixed,
           onTap: (i) => setState(() => _currentIndex = i),
