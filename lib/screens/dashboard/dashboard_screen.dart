@@ -211,9 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-      ),
+      appBar: AppBar(title: const Text('Home')),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadDashboardData,
@@ -234,7 +232,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 4),
                 Text(
                   _formatDate(now),
-                  style: TextStyle(fontSize: 14, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
                 const SizedBox(height: 14),
 
@@ -284,7 +285,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isDark ? Colors.white12 : const Color(0xFFDCE3FF).withValues(alpha: 0.5),
+                        color: isDark
+                            ? Colors.white12
+                            : const Color(0xFFDCE3FF).withValues(alpha: 0.5),
                       ),
                     ),
                     child: Column(
@@ -324,7 +327,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   '$_points XP total',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
                                   ),
                                 ),
                               ],
@@ -337,7 +342,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: LinearProgressIndicator(
                             value: _levelInfo.progress,
                             minHeight: 10,
-                            backgroundColor: isDark ? Colors.grey[700] : Colors.grey[300],
+                            backgroundColor: isDark
+                                ? Colors.grey[700]
+                                : Colors.grey[300],
                             valueColor: const AlwaysStoppedAnimation(
                               Color(0xFF1A237E),
                             ),
@@ -350,7 +357,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             '${_levelInfo.xpIntoLevel} / ${_levelInfo.xpForNextLevel} XP to next level',
                             style: TextStyle(
                               fontSize: 12,
-                              color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              color: isDark
+                                  ? Colors.grey[400]
+                                  : Colors.grey[600],
                             ),
                           ),
                         ),
@@ -396,7 +405,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isDark ? Colors.white12 : const Color(0xFFDCE3FF).withValues(alpha: 0.5),
+                        color: isDark
+                            ? Colors.white12
+                            : const Color(0xFFDCE3FF).withValues(alpha: 0.5),
                       ),
                     ),
                     child: Column(
@@ -438,7 +449,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           reward: '+20 XP',
                           color: Colors.amber[700]!,
                         ),
-                        Divider(height: 1, color: isDark ? Colors.white12 : const Color(0xFFF0F2FF)),
+                        Divider(
+                          height: 1,
+                          color: isDark
+                              ? Colors.white12
+                              : const Color(0xFFF0F2FF),
+                        ),
                         const SizedBox(height: 10),
                         _EarnRow(
                           icon: Icons.star,
@@ -473,7 +489,9 @@ class _WelcomeBackBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1A2744) : const Color(0xFFE8EAF6),
         borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: const Color(0xFF1A237E), width: 4)),
+        border: Border(
+          left: BorderSide(color: const Color(0xFF1A237E), width: 4),
+        ),
       ),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Row(
@@ -493,7 +511,11 @@ class _WelcomeBackBanner extends StatelessWidget {
             onTap: onDismiss,
             child: Padding(
               padding: const EdgeInsets.only(left: 12),
-              child: Icon(Icons.close, size: 18, color: isDark ? Colors.grey[500] : Colors.grey[500]),
+              child: Icon(
+                Icons.close,
+                size: 18,
+                color: isDark ? Colors.grey[500] : Colors.grey[500],
+              ),
             ),
           ),
         ],
@@ -543,7 +565,10 @@ class _StatCard extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
             ),
           ],
         ),

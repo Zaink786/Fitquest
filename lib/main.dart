@@ -47,20 +47,20 @@ class _FitQuestAppState extends State<FitQuestApp> {
     final font = Platform.isAndroid ? 'Inter' : null;
     return ThemeData(
       useMaterial3: false,
-      primarySwatch: Colors.blue,
+      primarySwatch: Colors.indigo,
       fontFamily: font,
       brightness: brightness,
       scaffoldBackgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       cardColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       appBarTheme: AppBarTheme(
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.blue,
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : const Color(0xFF1A237E),
         foregroundColor: Colors.white,
         elevation: 4,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.blue.withValues(alpha: 0.6),
+        selectedItemColor: const Color(0xFF1A237E),
+        unselectedItemColor: const Color(0xFF1A237E).withValues(alpha: 0.6),
         elevation: 8,
       ),
       dividerColor: isDark ? Colors.white24 : Colors.black12,
@@ -181,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 items: [
                   BottomNavigationBarItem(
                     icon: _navIcon(Icons.home, 0),
-                    label: 'Dashboard',
+                    label: 'Home',
                   ),
                   BottomNavigationBarItem(
                     icon: _navIcon(Icons.fitness_center, 1),
@@ -193,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   BottomNavigationBarItem(
                     icon: _navIcon(Icons.emoji_events, 3),
-                    label: 'Achievements',
+                    label: 'Achieve',
                   ),
                   BottomNavigationBarItem(
                     icon: _navIcon(Icons.explore, 4),
