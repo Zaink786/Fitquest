@@ -56,57 +56,94 @@ class _QuestScreenState extends State<QuestScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D2461),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0D2461),
-        elevation: 0,
-        centerTitle: true,
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Quest',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(nextWorld != null ? 108 : 72),
+        child: AppBar(
+          backgroundColor: const Color(0xFF0D2461),
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          flexibleSpace: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            currentWorld.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'World ${currentWorld.id} of ${questWorlds.length}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '$_questPoints',
+                              style: const TextStyle(
+                                color: Colors.amber,
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const TextSpan(
+                              text: ' QP',
+                              style: TextStyle(
+                                color: Colors.amber,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (nextWorld != null) ...[
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 6,
+                        backgroundColor: Colors.white24,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Colors.amber,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${nextWorld.requiredPoints - _questPoints} pts to ${nextWorld.name} · earn PRs to progress',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            Text(
-              currentWorld.name,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 14),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.fitness_center, color: Colors.amber, size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  '$_questPoints',
-                  style: const TextStyle(
-                    color: Colors.amber,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-              ],
-            ),
           ),
-        ],
-        bottom: nextWorld != null
-            ? PreferredSize(
-                preferredSize: const Size.fromHeight(32),
-                child: _AppBarProgress(
-                  questPoints: _questPoints,
-                  nextWorld: nextWorld,
-                  progress: progress,
-                ),
-              )
-            : null,
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -154,52 +191,6 @@ class _QuestScreenState extends State<QuestScreen> {
   }
 }
 
-class _AppBarProgress extends StatelessWidget {
-  final int questPoints;
-  final QuestWorld nextWorld;
-  final double progress;
-
-  const _AppBarProgress({
-    required this.questPoints,
-    required this.nextWorld,
-    required this.progress,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '$questPoints pts',
-                style: const TextStyle(color: Colors.white70, fontSize: 11),
-              ),
-              Text(
-                '${nextWorld.requiredPoints - questPoints} pts to ${nextWorld.name}',
-                style: const TextStyle(color: Colors.white70, fontSize: 11),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: Colors.white24,
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.amber),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _RoadRow extends StatelessWidget {
   final QuestWorld world;
