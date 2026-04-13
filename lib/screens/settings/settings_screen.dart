@@ -40,8 +40,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         : (email != null && email.isNotEmpty)
         ? email[0].toUpperCase()
         : '?';
+    final levelInfo = StorageService.getLevelInfo();
+    final unlockedCount = StorageService.getUnlockedAchievements().length;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        title: const Text('Settings'),
+      ),
       body: ListView(
         children: [
           // Account section
@@ -62,6 +68,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _memberSince != null
                   ? '${email ?? ''}  ·  Member since ${DateFormat('MMMM yyyy').format(_memberSince!)}'
                   : email ?? '',
+            ),
+          ),
+          // Stats row
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.grey[850] : const Color(0xFFF8F8F8),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Lv ${levelInfo.level}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1A237E),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${levelInfo.currentXp} XP',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(width: 1, height: 36, color: isDark ? Colors.grey[700] : Colors.grey[300]),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          '$unlockedCount/7',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF4A148C),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Achievements',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(width: 1, height: 36, color: isDark ? Colors.grey[700] : Colors.grey[300]),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text(
+                          '${StorageService.getCurrentStreak()}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1A237E),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Day streak',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           ListTile(
