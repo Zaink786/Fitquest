@@ -64,15 +64,20 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
     final unlockedIds = StorageService.getUnlockedAchievements();
 
+    final mapped = Achievements.allAchievements.map((achievement) {
+      final isUnlocked = unlockedIds.contains(achievement.id);
+      final progress = progressMap[achievement.id] ?? 0;
+      return achievement.copyWith(
+        isUnlocked: isUnlocked,
+        currentProgress: progress,
+      );
+    }).toList();
+    mapped.sort((a, b) {
+      if (a.isUnlocked == b.isUnlocked) return 0;
+      return a.isUnlocked ? -1 : 1;
+    });
     setState(() {
-      _achievements = Achievements.allAchievements.map((achievement) {
-        final isUnlocked = unlockedIds.contains(achievement.id);
-        final progress = progressMap[achievement.id] ?? 0;
-        return achievement.copyWith(
-          isUnlocked: isUnlocked,
-          currentProgress: progress,
-        );
-      }).toList();
+      _achievements = mapped;
     });
   }
 
@@ -80,15 +85,15 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     switch (a.id) {
       case 'consistency_starter':
       case 'dedicated':
-        return Colors.blue[600]!;
+        return const Color(0xFF1565C0);
       case 'first_meal_logged':
-        return Colors.orange[700]!;
+        return const Color(0xFFE65100);
       case 'first_100_points':
-        return Colors.amber[700]!;
+        return const Color(0xFF9C27B0);
       case 'world_traveller':
-        return Colors.amber[800]!;
+        return const Color(0xFF9C27B0);
       default:
-        return Colors.blue[600]!;
+        return const Color(0xFF1565C0);
     }
   }
 
@@ -124,6 +129,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   Widget build(BuildContext context) {
     final unlockedCount = _achievements.where((a) => a.isUnlocked).length;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Achievements'),
@@ -163,7 +169,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
             return Card(
               elevation: achievement.isUnlocked ? 3 : 1,
-              color: achievement.isUnlocked ? null : Colors.grey[100],
+              color: achievement.isUnlocked ? null : (isDark ? Colors.grey[850] : Colors.grey[100]),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -179,8 +185,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: achievement.isUnlocked
-                            ? Colors.amber[100]
-                            : Colors.grey[300],
+                            ? (isDark ? Colors.amber[800] : Colors.amber[100])
+                            : (isDark ? Colors.grey[700] : Colors.grey[300]),
                       ),
                       child: Center(
                         child: Opacity(
@@ -204,8 +210,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                               color: achievement.isUnlocked
-                                  ? Colors.black
-                                  : Colors.grey[600],
+                                  ? null
+                                  : (isDark ? Colors.grey[400] : Colors.grey[600]),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -214,18 +220,18 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               color: achievement.isUnlocked
-                                  ? Colors.black87
-                                  : Colors.grey[500],
+                                  ? null
+                                  : (isDark ? Colors.grey[500] : Colors.grey[500]),
                             ),
                           ),
                           if (showProgress && hasTarget) ...[
                             const SizedBox(height: 8),
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(2),
                               child: LinearProgressIndicator(
                                 value: fraction,
-                                minHeight: 5,
-                                backgroundColor: Colors.grey[300],
+                                minHeight: 3,
+                                backgroundColor: isDark ? Colors.grey[800] : const Color(0xFFF3E5F5),
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   color,
                                 ),
@@ -235,7 +241,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                             Text(
                               _progressLabel(achievement),
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: color,
                               ),
@@ -245,7 +251,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                             Text(
                               _progressLabel(achievement),
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: color,
                               ),
@@ -263,7 +269,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                             height: 24,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: Colors.grey[400]!,
+                                color: isDark ? Colors.grey[600]! : Colors.grey[400]!,
                                 width: 2,
                               ),
                               borderRadius: BorderRadius.circular(4),
