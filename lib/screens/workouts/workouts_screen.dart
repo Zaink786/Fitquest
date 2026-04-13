@@ -149,7 +149,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                               '+20 XP',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Color(0xFF1A237E),
                               ),
                             ),
                             onTap: () {
@@ -501,8 +501,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                             label: 'Start Empty',
                             icon: Icons.fitness_center,
                             backgroundColor: isDark ? const Color(0xFF1A1F3A) : const Color(0xFFE8EAF6),
-                            borderColor: isDark ? const Color(0xFF3949AB) : const Color(0xFF9FA8DA),
-                            iconColor: const Color(0xFF3949AB),
+                            borderColor: isDark ? const Color(0xFF1A237E) : const Color(0xFF9FA8DA),
+                            iconColor: const Color(0xFF1A237E),
                             onTap: _startEmptyWorkout,
                           ),
                         ),
@@ -584,7 +584,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                               onTap: () => _openRoutineForm(),
                               child: const Icon(
                                 Icons.add,
-                                color: Colors.blue,
+                                color: Color(0xFF1A237E),
                                 size: 28,
                               ),
                             ),
@@ -843,11 +843,11 @@ class _RoutineCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 18,
-                        backgroundColor: Colors.blue.withValues(alpha: 0.12),
+                        backgroundColor: const Color(0xFF1A237E).withValues(alpha: 0.12),
                         child: const Icon(
                           Icons.fitness_center,
                           size: 16,
-                          color: Colors.blue,
+                          color: Color(0xFF1A237E),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -884,7 +884,7 @@ class _RoutineCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onStart,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color(0xFF1A237E),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 22,
@@ -919,7 +919,7 @@ class _PlanTemplateChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.blue.withValues(alpha: 0.08),
+      color: const Color(0xFF1A237E).withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(999),
       child: InkWell(
         onTap: onTap,
@@ -928,7 +928,7 @@ class _PlanTemplateChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: Colors.blue.withValues(alpha: 0.25)),
+            border: Border.all(color: const Color(0xFF1A237E).withValues(alpha: 0.25)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -936,14 +936,14 @@ class _PlanTemplateChip extends StatelessWidget {
               const Icon(
                 Icons.add_circle_outline,
                 size: 16,
-                color: Colors.blue,
+                color: Color(0xFF1A237E),
               ),
               const SizedBox(width: 6),
               Text(
                 label,
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Colors.blue,
+                  color: Color(0xFF1A237E),
                 ),
               ),
             ],
@@ -1103,7 +1103,7 @@ class _RoutineFormSheetState extends State<_RoutineFormSheet> {
                           subtitle: Text(ex.getPrimaryMusclesDisplay()),
                           trailing: const Icon(
                             Icons.add_circle_outline,
-                            color: Colors.blue,
+                            color: Color(0xFF1A237E),
                           ),
                           onTap: () {
                             setState(
@@ -1392,7 +1392,7 @@ class _Stepper extends StatelessWidget {
           width: 24,
           height: 24,
           decoration: BoxDecoration(
-            color: enabled ? Colors.blue : Colors.grey[300],
+            color: enabled ? const Color(0xFF1A237E) : Colors.grey[300],
             borderRadius: BorderRadius.circular(4),
           ),
           child: Icon(icon, size: 14, color: Colors.white),

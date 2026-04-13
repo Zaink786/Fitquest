@@ -189,7 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 10),
               _EarnRow(
                 icon: Icons.fitness_center,
-                color: const Color(0xFF2979FF),
+                color: const Color(0xFF1A237E),
                 label: '$questPoints Quest Points',
                 reward: nextWorld != null
                     ? '$ptsToNext to ${nextWorld.name}'
@@ -471,9 +471,9 @@ class _WelcomeBackBanner extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A2744) : Colors.blue[50],
+        color: isDark ? const Color(0xFF1A2744) : const Color(0xFFE8EAF6),
         borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: Colors.blue[700]!, width: 4)),
+        border: Border(left: BorderSide(color: const Color(0xFF1A237E), width: 4)),
       ),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Row(
@@ -579,7 +579,7 @@ class _EarnRow extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: rewardColor ?? const Color(0xFF2979FF),
+            color: rewardColor ?? const Color(0xFF1A237E),
           ),
         ),
       ],

@@ -82,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: Colors.blue,
+                      color: const Color(0xFF1A237E),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Icon(
@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     'FitQuest',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: const Color(0xFF1A237E),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -210,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: const Color(0xFF1A237E),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -254,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Text(
                           _isSignUp ? 'Log In' : 'Sign Up',
                           style: const TextStyle(
-                            color: Colors.blue,
+                            color: Color(0xFF1A237E),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
