@@ -472,8 +472,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   // ── Build
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(title: const Text('Workouts')),
+      appBar: AppBar(
+        title: const Text('Workouts'),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
@@ -491,18 +494,71 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _NewWorkoutCard(
-                      label: 'Start Empty Workout',
-                      icon: Icons.fitness_center,
-                      color: Colors.blue,
-                      onTap: _startEmptyWorkout,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _NewWorkoutCard(
+                            label: 'Start Empty',
+                            icon: Icons.fitness_center,
+                            backgroundColor: isDark ? const Color(0xFF1A1F3A) : const Color(0xFFE8EAF6),
+                            borderColor: isDark ? const Color(0xFF3949AB) : const Color(0xFF9FA8DA),
+                            iconColor: const Color(0xFF3949AB),
+                            onTap: _startEmptyWorkout,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _NewWorkoutCard(
+                            label: 'Generate Workout',
+                            icon: Icons.auto_awesome,
+                            backgroundColor: isDark ? const Color(0xFF2A1A35) : const Color(0xFFF3E5F5),
+                            borderColor: isDark ? const Color(0xFF8E24AA) : const Color(0xFFCE93D8),
+                            iconColor: const Color(0xFF8E24AA),
+                            onTap: _generateWorkout,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    _NewWorkoutCard(
-                      label: 'Generate Workout',
-                      icon: Icons.auto_awesome,
-                      color: Colors.purple,
-                      onTap: _generateWorkout,
+                    const SizedBox(height: 28),
+
+                    // ── Recent Sessions
+                    const Text(
+                      'Recent Sessions',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.fitness_center,
+                              size: 28,
+                              color: Colors.grey.shade300,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No recent sessions yet',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Complete a workout to see your history',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 28),
 
@@ -598,7 +654,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: isDark ? Colors.grey[850] : Colors.grey[100],
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -648,13 +704,17 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 class _NewWorkoutCard extends StatelessWidget {
   final String label;
   final IconData icon;
-  final Color color;
+  final Color backgroundColor;
+  final Color borderColor;
+  final Color iconColor;
   final VoidCallback onTap;
 
   const _NewWorkoutCard({
     required this.label,
     required this.icon,
-    required this.color,
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.iconColor,
     required this.onTap,
   });
 
@@ -665,25 +725,25 @@ class _NewWorkoutCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 22),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          border: Border.all(color: color.withValues(alpha: 0.35), width: 1.5),
+          color: backgroundColor,
+          border: Border.all(color: borderColor, width: 1.5),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+            Icon(icon, size: 32, color: iconColor),
+            const SizedBox(height: 10),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: iconColor,
               ),
             ),
-            Icon(icon, size: 42, color: color.withValues(alpha: 0.75)),
           ],
         ),
       ),
