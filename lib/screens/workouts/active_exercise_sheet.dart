@@ -61,8 +61,12 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
   void dispose() {
     _syncToModel();
     widget.onChanged();
-    for (final c in _kgCtrls) c.dispose();
-    for (final c in _repsCtrls) c.dispose();
+    for (final c in _kgCtrls) {
+      c.dispose();
+    }
+    for (final c in _repsCtrls) {
+      c.dispose();
+    }
     super.dispose();
   }
 

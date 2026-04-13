@@ -1,5 +1,5 @@
-/// In-memory models for an active (in-progress) workout session.
-/// These are ephemeral — not persisted to Hive.
+// In-memory models for an active (in-progress) workout session.
+// These are ephemeral — not persisted to Hive.
 
 class ActiveSet {
   double? kg;

@@ -21,6 +21,7 @@ class ExerciseService {
 
       return _cachedExercises!;
     } catch (e) {
+      // ignore: avoid_print
       print('Error loading exercises: $e');
       throw Exception('Failed to load exercise database');
     }
