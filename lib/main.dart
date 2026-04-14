@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
@@ -53,12 +52,11 @@ class _FitQuestAppState extends State<FitQuestApp> {
 
   ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-    final font = Platform.isAndroid ? 'Inter' : null;
     final accent = isDark ? _accentDark : _accentLight;
     return ThemeData(
       useMaterial3: false,
       primarySwatch: Colors.indigo,
-      fontFamily: font,
+      fontFamily: 'Inter',
       brightness: brightness,
       scaffoldBackgroundColor: isDark ? _shellDark : _shellLight,
       cardColor: isDark ? _cardDark : _cardLight,
