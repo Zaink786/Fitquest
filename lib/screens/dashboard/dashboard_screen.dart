@@ -69,9 +69,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _showWelcomeTip = StorageService.hasPendingOnboardingTips() &&
+    _showWelcomeTip =
+        StorageService.hasPendingOnboardingTips() &&
         !StorageService.hasSeenWelcomeTip();
-    _showCalorieTip = StorageService.hasPendingOnboardingTips() &&
+    _showCalorieTip =
+        StorageService.hasPendingOnboardingTips() &&
         !StorageService.hasSeenCalorieTip();
     _loadDashboardData();
   }
@@ -223,7 +225,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // Accent colours mirrored from _FitQuestAppState constants.
   static const _accentLight = Color(0xFF5B4FCF);
-  static const _accentDark  = Color(0xFFA695F5);
+  static const _accentDark = Color(0xFFA695F5);
 
   @override
   Widget build(BuildContext context) {
@@ -444,7 +446,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           iconText: '⭐',
                           value: '$questPoints',
                           label: 'Quest\nPoints',
-                          valueColor: const Color(0xFFF9A825),
                         ),
                       ],
                     ),
@@ -479,7 +480,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           subtitle: 'Keep the streak going',
                           reward: '+20 XP',
                           pillLight: const Color(0xFFEDE9FB),
-                          pillDark:  const Color(0xFF1E1A3D),
+                          pillDark: const Color(0xFF1E1A3D),
                           iconColor: const Color(0xFF5B4FCF),
                         ),
                         const SizedBox(height: 12),
@@ -489,7 +490,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           subtitle: 'Track what you eat',
                           reward: '+5 XP',
                           pillLight: const Color(0xFFE8F5E9),
-                          pillDark:  const Color(0xFF0D2213),
+                          pillDark: const Color(0xFF0D2213),
                           iconColor: const Color(0xFF2E7D32),
                         ),
                         const SizedBox(height: 12),
@@ -499,7 +500,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           subtitle: 'Log in every day',
                           reward: '+10 XP',
                           pillLight: const Color(0xFFFBECE8),
-                          pillDark:  const Color(0xFF2D1206),
+                          pillDark: const Color(0xFF2D1206),
                           iconColor: Colors.deepOrange,
                         ),
                         const SizedBox(height: 12),
@@ -509,7 +510,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           subtitle: 'Hit your daily target',
                           reward: '+20 XP',
                           pillLight: const Color(0xFFFFF8E1),
-                          pillDark:  const Color(0xFF2D1F00),
+                          pillDark: const Color(0xFF2D1F00),
                           iconColor: const Color(0xFFF9A825),
                         ),
                         const SizedBox(height: 4),
@@ -527,7 +528,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.0,
-                              color: const Color(0xFFF9A825).withValues(alpha: 0.8),
+                              color: const Color(
+                                0xFFF9A825,
+                              ).withValues(alpha: 0.8),
                             ),
                           ),
                         ),
@@ -537,7 +540,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           subtitle: 'Beat your best workouts to earn QPs',
                           reward: '+50 QP',
                           pillLight: const Color(0xFFFFF8E1),
-                          pillDark:  const Color(0xFF2D1F00),
+                          pillDark: const Color(0xFF2D1F00),
                           iconColor: const Color(0xFFF9A825),
                           rewardColor: const Color(0xFFF9A825),
                         ),
@@ -641,7 +644,9 @@ class _StatCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: valueColor,
+                color:
+                    valueColor ??
+                    (isDark ? Colors.grey[500] : Colors.grey[500]),
               ),
             ),
             const SizedBox(height: 2),
