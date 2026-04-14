@@ -173,24 +173,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 16),
               _EarnRow(
                 icon: Icons.star,
-                color: Colors.amber,
+                iconColor: Colors.amber,
+                pillLight: const Color(0xFFFFF8E1),
+                pillDark: const Color(0xFF2D1F00),
                 label: 'Level $level — $totalXp XP total',
+                subtitle: 'Total XP earned',
                 reward: '',
                 rewardColor: Colors.transparent,
               ),
               const SizedBox(height: 10),
               _EarnRow(
                 icon: Icons.local_fire_department,
-                color: Colors.deepOrange,
+                iconColor: Colors.deepOrange,
+                pillLight: const Color(0xFFFBECE8),
+                pillDark: const Color(0xFF2D1206),
                 label: streak > 0 ? '$streak-day streak' : 'No active streak',
+                subtitle: streak > 0 ? 'Keep it up!' : 'Start today',
                 reward: streak > 0 ? 'Keep going!' : 'Start today',
                 rewardColor: Colors.grey,
               ),
               const SizedBox(height: 10),
               _EarnRow(
                 icon: Icons.fitness_center,
-                color: const Color(0xFF1A237E),
+                iconColor: const Color(0xFF5B4FCF),
+                pillLight: const Color(0xFFEDE9FB),
+                pillDark: const Color(0xFF1E1A3D),
                 label: '$questPoints Quest Points',
+                subtitle: nextWorld != null
+                    ? '$ptsToNext pts to ${nextWorld.name}'
+                    : 'All worlds unlocked!',
                 reward: nextWorld != null
                     ? '$ptsToNext to ${nextWorld.name}'
                     : 'All unlocked!',
@@ -203,6 +214,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // Accent colours mirrored from _FitQuestAppState constants.
+  static const _accentLight = Color(0xFF5B4FCF);
+  static const _accentDark  = Color(0xFFA695F5);
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -210,61 +225,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final dailyPoints = StorageService.getDailyPoints();
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? _accentDark : _accentLight;
+    final subtleText = isDark ? Colors.grey[500]! : Colors.grey[500]!;
+    final cardBorder = isDark
+        ? Colors.white.withValues(alpha: 0.07)
+        : Colors.black.withValues(alpha: 0.06);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      // No AppBar — content owns the full safe area.
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadDashboardData,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Greeting + date
+                // ── Date + Greeting ──
                 Text(
-                  'Hi ${_username()} 👋',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                  _formatDate(now).toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.8,
+                    color: subtleText,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatDate(now),
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  'Hi, ${_username()} 👋',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    height: 1.1,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 20),
 
                 if (_isLoading) ...[
                   const Center(child: CircularProgressIndicator()),
                 ] else if (_errorMessage != null) ...[
-                  Card(
-                    color: Colors.red[50],
-                    shape: RoundedRectangleBorder(
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: cardBorder),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.error, color: Colors.red),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _errorMessage!,
-                              style: const TextStyle(color: Colors.red),
-                            ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
                           ),
-                          TextButton(
-                            onPressed: _loadDashboardData,
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
+                        ),
+                        TextButton(
+                          onPressed: _loadDashboardData,
+                          child: const Text('Retry'),
+                        ),
+                      ],
                     ),
                   ),
                 ] else ...[
@@ -280,88 +303,88 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   // ── Level card ──
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.white12
-                            : const Color(0xFFDCE3FF).withValues(alpha: 0.5),
-                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: cardBorder),
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          'CURRENT LEVEL',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.0,
+                            color: subtleText,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
                         Row(
                           children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Level ${_levelInfo.level}',
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '$_points XP total',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: subtleText,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Container(
-                              width: 52,
-                              height: 52,
+                              width: 58,
+                              height: 58,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1A237E),
-                                borderRadius: BorderRadius.circular(14),
+                                color: isDark
+                                    ? const Color(0xFF2A2060)
+                                    : const Color(0xFF1A237E),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                               child: Center(
                                 child: Text(
                                   '${_levelInfo.level}',
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 24,
+                                    fontSize: 26,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 14),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Level ${_levelInfo.level}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  '$_points XP total',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: isDark
-                                        ? Colors.grey[400]
-                                        : Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
                           ],
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 20),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(6),
                           child: LinearProgressIndicator(
                             value: _levelInfo.progress,
                             minHeight: 10,
                             backgroundColor: isDark
-                                ? Colors.grey[700]
-                                : Colors.grey[300],
-                            valueColor: const AlwaysStoppedAnimation(
-                              Color(0xFF1A237E),
-                            ),
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.black.withValues(alpha: 0.08),
+                            valueColor: AlwaysStoppedAnimation(accent),
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            '${_levelInfo.xpIntoLevel} / ${_levelInfo.xpForNextLevel} XP to next level',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark
-                                  ? Colors.grey[400]
-                                  : Colors.grey[600],
-                            ),
-                          ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${_levelInfo.xpIntoLevel} / ${_levelInfo.xpForNextLevel} XP to Level ${_levelInfo.level + 1}',
+                          style: TextStyle(fontSize: 12, color: subtleText),
                         ),
                       ],
                     ),
@@ -370,99 +393,111 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 12),
 
                   // ── Three stat cards ──
-                  Row(
-                    children: [
-                      _StatCard(
-                        icon: Icons.fitness_center,
-                        iconColor: Colors.grey[700]!,
-                        value: '$dailyPoints',
-                        label: "Today's\nXP",
-                      ),
-                      const SizedBox(width: 10),
-                      _StatCard(
-                        icon: Icons.local_fire_department,
-                        iconColor: Colors.red,
-                        value: '$_streakDays',
-                        label: 'Day streak',
-                      ),
-                      const SizedBox(width: 10),
-                      _StatCard(
-                        icon: Icons.star,
-                        iconColor: const Color(0xFFF9A825),
-                        value: '$questPoints',
-                        label: 'Quest pts',
-                        valueColor: const Color(0xFFF9A825),
-                      ),
-                    ],
+                  IntrinsicHeight(
+                    child: Row(
+                      children: [
+                        _StatCard(
+                          iconText: 'XP',
+                          value: '$dailyPoints',
+                          label: "Today's\nXP",
+                        ),
+                        const SizedBox(width: 10),
+                        _StatCard(
+                          iconText: '🔥',
+                          value: '$_streakDays',
+                          label: 'Day\nstreak',
+                        ),
+                        const SizedBox(width: 10),
+                        _StatCard(
+                          iconText: '⭐',
+                          value: '$questPoints',
+                          label: 'Quest\npts',
+                          valueColor: const Color(0xFFF9A825),
+                        ),
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 12),
 
-                  // ── How to earn ──
+                  // ── Quick Earn card ──
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 10),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.white12
-                            : const Color(0xFFDCE3FF).withValues(alpha: 0.5),
-                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: cardBorder),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'HOW TO EARN',
+                        Text(
+                          'QUICK EARN',
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.0,
+                            color: subtleText,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
                         _EarnRow(
                           icon: Icons.fitness_center,
                           label: 'Log a workout',
+                          subtitle: 'Keep the streak going',
                           reward: '+20 XP',
-                          color: Colors.grey[700]!,
+                          pillLight: const Color(0xFFEDE9FB),
+                          pillDark:  const Color(0xFF1E1A3D),
+                          iconColor: const Color(0xFF5B4FCF),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
                         _EarnRow(
                           icon: Icons.restaurant,
                           label: 'Log a meal',
+                          subtitle: 'Track what you eat',
                           reward: '+5 XP',
-                          color: Colors.grey[700]!,
+                          pillLight: const Color(0xFFE8F5E9),
+                          pillDark:  const Color(0xFF0D2213),
+                          iconColor: const Color(0xFF2E7D32),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
                         _EarnRow(
                           icon: Icons.local_fire_department,
                           label: 'Daily streak',
+                          subtitle: 'Log in every day',
                           reward: '+10 XP',
-                          color: Colors.deepOrange,
+                          pillLight: const Color(0xFFFBECE8),
+                          pillDark:  const Color(0xFF2D1206),
+                          iconColor: Colors.deepOrange,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
                         _EarnRow(
                           icon: Icons.emoji_events,
                           label: 'Calorie goal',
+                          subtitle: 'Hit your daily target',
                           reward: '+20 XP',
-                          color: Colors.amber[700]!,
+                          pillLight: const Color(0xFFFFF8E1),
+                          pillDark:  const Color(0xFF2D1F00),
+                          iconColor: const Color(0xFFF9A825),
                         ),
+                        const SizedBox(height: 4),
                         Divider(
-                          height: 1,
+                          height: 20,
                           color: isDark
-                              ? Colors.white12
-                              : const Color(0xFFF0F2FF),
+                              ? Colors.white.withValues(alpha: 0.07)
+                              : Colors.black.withValues(alpha: 0.06),
                         ),
-                        const SizedBox(height: 10),
                         _EarnRow(
                           icon: Icons.star,
                           label: 'Personal record',
-                          reward: '+50 Quest',
-                          color: Colors.amber,
+                          subtitle: 'Beat your best',
+                          reward: '+50 QP',
+                          pillLight: const Color(0xFFFFF8E1),
+                          pillDark:  const Color(0xFF2D1F00),
+                          iconColor: const Color(0xFFF9A825),
                           rewardColor: const Color(0xFFF9A825),
                         ),
+                        const SizedBox(height: 6),
                       ],
                     ),
                   ),
@@ -525,15 +560,13 @@ class _WelcomeBackBanner extends StatelessWidget {
 }
 
 class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
+  final String? iconText;
   final String value;
   final String label;
   final Color? valueColor;
 
   const _StatCard({
-    required this.icon,
-    required this.iconColor,
+    this.iconText,
     required this.value,
     required this.label,
     this.valueColor,
@@ -546,12 +579,18 @@ class _StatCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isDark ? Colors.grey[850] : Colors.grey[100],
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.07)
+                : Colors.black.withValues(alpha: 0.06),
+          ),
         ),
         child: Column(
           children: [
-            Icon(icon, color: iconColor, size: 20),
+            if (iconText != null)
+              Text(iconText!, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 6),
             Text(
               value,
@@ -566,8 +605,8 @@ class _StatCard extends StatelessWidget {
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                fontSize: 11,
+                color: isDark ? Colors.grey[500] : Colors.grey[500],
               ),
             ),
           ],
@@ -579,32 +618,78 @@ class _StatCard extends StatelessWidget {
 
 class _EarnRow extends StatelessWidget {
   final IconData icon;
+  final Color iconColor;
+  final Color pillLight;
+  final Color pillDark;
   final String label;
+  final String subtitle;
   final String reward;
-  final Color color;
   final Color? rewardColor;
 
   const _EarnRow({
     required this.icon,
+    required this.iconColor,
+    required this.pillLight,
+    required this.pillDark,
     required this.label,
+    required this.subtitle,
     required this.reward,
-    required this.color,
     this.rewardColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pill = isDark ? pillDark : pillLight;
+    // XP rewards use a green tint; QP rewards use amber — anything else falls
+    // back to the accent colour.
+    final Color defaultReward = reward.contains('QP')
+        ? const Color(0xFFF9A825)
+        : const Color(0xFF2E7D32);
+
     return Row(
       children: [
-        Icon(icon, size: 20, color: color),
-        const SizedBox(width: 10),
-        Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
+        // Icon pill
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: pill,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, size: 20, color: iconColor),
+        ),
+        const SizedBox(width: 12),
+        // Label + subtitle
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[500] : Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Reward badge
         Text(
           reward,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: rewardColor ?? const Color(0xFF1A237E),
+            color: rewardColor ?? defaultReward,
           ),
         ),
       ],
