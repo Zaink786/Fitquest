@@ -131,9 +131,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nutrition'),
-      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadData,
@@ -141,10 +138,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
               ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Text(
+                        'Nutrition',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       // Header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -45,11 +45,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
-      body: ListView(
+      body: SafeArea(
+        child: ListView(
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 32),
         children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Text(
+              'Settings',
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            ),
+          ),
           // Account section
           ListTile(
             leading: CircleAvatar(
@@ -228,6 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
         ],
+        ),
       ),
     );
   }

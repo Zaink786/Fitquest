@@ -131,34 +131,40 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Achievements'),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: Text(
-                '$unlockedCount/${_achievements.length}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await _loadAchievements();
-        },
-        child: ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: _achievements.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final achievement = _achievements[index];
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _loadAchievements,
+          child: ListView.separated(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+            // index 0 is the title header; achievements start at index 1
+            itemCount: _achievements.length + 1,
+            separatorBuilder: (_, index) =>
+                index == 0 ? const SizedBox(height: 20) : const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Achievements',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '$unlockedCount/${_achievements.length}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.grey[500] : Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                );
+              }
+              final achievement = _achievements[index - 1];
             final showProgress = !achievement.isUnlocked;
             final hasTarget = achievement.targetValue != null;
             final color = _progressColor(achievement);
@@ -280,6 +286,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               ),
             );
           },
+        ),
         ),
       ),
     );
