@@ -43,7 +43,7 @@ const List<QuestWorld> questWorlds = [
     description: 'Ancient trees tower above. Only the strong find the path.',
     requiredPoints: 300,
     icon: Icons.park,
-    gradient: [Color(0xFF2E7D32), Color(0xFF81C784)],
+    gradient: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
   ),
   QuestWorld(
     id: 4,

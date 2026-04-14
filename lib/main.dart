@@ -42,30 +42,40 @@ class _FitQuestAppState extends State<FitQuestApp> {
   void _onLogout() => setState(() => _isLoggedIn = false);
   void _onOnboardingFinished() => setState(() => _needsOnboarding = false);
 
+  // Light: warm off-white shell, white cards, rich purple accent.
+  // Dark: near-black shell, one-step-up cards, lighter purple accent.
+  static const _accentLight = Color(0xFF5B4FCF);
+  static const _accentDark  = Color(0xFFA695F5);
+  static const _shellLight  = Color(0xFFF5F4F0);
+  static const _shellDark   = Color(0xFF0C0C0C);
+  static const _cardLight   = Color(0xFFFFFFFF);
+  static const _cardDark    = Color(0xFF1A1A1A);
+
   ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final font = Platform.isAndroid ? 'Inter' : null;
+    final accent = isDark ? _accentDark : _accentLight;
     return ThemeData(
       useMaterial3: false,
       primarySwatch: Colors.indigo,
       fontFamily: font,
       brightness: brightness,
-      scaffoldBackgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
-      cardColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      scaffoldBackgroundColor: isDark ? _shellDark : _shellLight,
+      cardColor: isDark ? _cardDark : _cardLight,
       appBarTheme: AppBarTheme(
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : const Color(0xFF1A237E),
+        backgroundColor: isDark ? _cardDark : _accentLight,
         foregroundColor: Colors.white,
-        elevation: 4,
+        elevation: 0,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        selectedItemColor: const Color(0xFF1A237E),
-        unselectedItemColor: const Color(0xFF1A237E).withValues(alpha: 0.6),
+        backgroundColor: isDark ? _cardDark : _cardLight,
+        selectedItemColor: accent,
+        unselectedItemColor: accent.withValues(alpha: isDark ? 0.45 : 0.5),
         elevation: 8,
       ),
       dividerColor: isDark ? Colors.white24 : Colors.black12,
       dialogTheme: DialogThemeData(
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? _cardDark : _cardLight,
       ),
     );
   }
@@ -104,13 +114,22 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  static const _pipColors = [
+  static const _pipColorsLight = [
     Color(0xFF1A237E), // Dashboard
     Color(0xFF1A237E), // Workouts
     Color(0xFF1B5E20), // Nutrition
     Color(0xFF4A148C), // Achievements
     Colors.amber,     // Quest
     Color(0xFF212121), // Settings
+  ];
+
+  static const _pipColorsDark = [
+    Color(0xFF9FA8DA), // Dashboard
+    Color(0xFF9FA8DA), // Workouts
+    Color(0xFF66BB6A), // Nutrition
+    Color(0xFFCE93D8), // Achievements
+    Colors.amber,     // Quest
+    Color(0xFF9E9E9E), // Settings
   ];
 
   late final List<Widget> _screens;
@@ -128,8 +147,10 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
-  Widget _navIcon(IconData icon, int tabIndex) {
+  Widget _navIcon(BuildContext context, IconData icon, int tabIndex) {
     final isActive = _currentIndex == tabIndex;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pipColors = isDark ? _pipColorsDark : _pipColorsLight;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -138,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
           width: isActive ? 20 : 0,
           height: 3,
           decoration: BoxDecoration(
-            color: isActive ? _pipColors[tabIndex] : Colors.transparent,
+            color: isActive ? pipColors[tabIndex] : Colors.transparent,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -159,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: Builder(
         builder: (context) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
-          final navBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+          final navBg = isDark ? _FitQuestAppState._cardDark : _FitQuestAppState._cardLight;
           final borderColor = isDark ? Colors.white12 : const Color(0xFFE8E8E8);
           return Container(
             decoration: BoxDecoration(
@@ -180,27 +201,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: (i) => setState(() => _currentIndex = i),
                 items: [
                   BottomNavigationBarItem(
-                    icon: _navIcon(Icons.home, 0),
+                    icon: _navIcon(context, Icons.home, 0),
                     label: 'Home',
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(Icons.fitness_center, 1),
+                    icon: _navIcon(context, Icons.fitness_center, 1),
                     label: 'Workouts',
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(Icons.restaurant_menu, 2),
+                    icon: _navIcon(context, Icons.restaurant_menu, 2),
                     label: 'Nutrition',
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(Icons.emoji_events, 3),
+                    icon: _navIcon(context, Icons.emoji_events, 3),
                     label: 'Achieve',
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(Icons.explore, 4),
+                    icon: _navIcon(context, Icons.explore, 4),
                     label: 'Quest',
                   ),
                   BottomNavigationBarItem(
-                    icon: _navIcon(Icons.settings, 5),
+                    icon: _navIcon(context, Icons.settings, 5),
                     label: 'Settings',
                   ),
                 ],
