@@ -115,8 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   static const _pipColorsLight = [
-    Color(0xFF1A237E), // Dashboard
-    Color(0xFF1A237E), // Workouts
+    Color(0xFF9FA8DA), // Dashboard
+    Color(0xFF9FA8DA), // Workouts
     Color(0xFF1B5E20), // Nutrition
     Color(0xFF4A148C), // Achievements
     Colors.amber,     // Quest

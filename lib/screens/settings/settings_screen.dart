@@ -59,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Account section
           ListTile(
             leading: CircleAvatar(
-              backgroundColor: const Color(0xFF1A237E),
+              backgroundColor: const Color(0xFF9FA8DA),
               child: Text(
                 initial,
                 style: const TextStyle(
@@ -95,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF1A237E),
+                            color: Color(0xFF9FA8DA),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -141,7 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF1A237E),
+                            color: Color(0xFF9FA8DA),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -178,7 +178,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(),
           const ListTile(
-            leading: Icon(Icons.info_outline, color: Color(0xFF1A237E)),
+            leading: Icon(Icons.info_outline, color: Color(0xFF9FA8DA)),
             title: Text('About'),
             subtitle: Text('FitQuest v1.0.0'),
           ),

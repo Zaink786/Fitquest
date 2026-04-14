@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A237E),
+                        color: const Color(0xFF9FA8DA),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Icon(
@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1A237E),
+                            color: const Color(0xFF9FA8DA),
                           ),
                     ),
                     const SizedBox(height: 8),
@@ -221,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1A237E),
+                          backgroundColor: const Color(0xFF9FA8DA),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -268,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text(
                             _isSignUp ? 'Log In' : 'Sign Up',
                             style: const TextStyle(
-                              color: Color(0xFF1A237E),
+                              color: Color(0xFF9FA8DA),
                               fontWeight: FontWeight.w600,
                             ),
                           ),

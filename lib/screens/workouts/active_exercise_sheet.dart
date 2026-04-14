@@ -391,7 +391,7 @@ class _SetRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: isDone
           ? BoxDecoration(
-              color: const Color(0xFF1A237E).withValues(alpha: 0.08),
+              color: const Color(0xFF9FA8DA).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
             )
           : null,
@@ -444,7 +444,7 @@ class _SetRow extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: isDone ? const Color(0xFF1A237E) : Colors.grey[200],
+                color: isDone ? const Color(0xFF9FA8DA) : Colors.grey[200],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(

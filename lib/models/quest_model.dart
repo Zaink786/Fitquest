@@ -92,7 +92,7 @@ const List<QuestWorld> questWorlds = [
     description: 'Beyond reality itself. Few have ever stood here.',
     requiredPoints: 4000,
     icon: Icons.dark_mode,
-    gradient: [Color(0xFF1A237E), Color(0xFF534BAE)],
+    gradient: [Color(0xFF9FA8DA), Color(0xFF534BAE)],
   ),
   QuestWorld(
     id: 10,
