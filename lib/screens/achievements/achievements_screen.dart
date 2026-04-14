@@ -116,7 +116,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       case 'first_pr':
         return 'Log a workout to set your first PR';
       case 'world_traveller':
-        return '${a.currentProgress} / ${a.targetValue} Quest pts';
+        return '${a.currentProgress} / ${a.targetValue} QP';
       default:
         if (a.targetValue != null) {
           return '${a.currentProgress} / ${a.targetValue}';

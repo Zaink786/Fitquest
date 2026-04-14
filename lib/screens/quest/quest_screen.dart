@@ -132,7 +132,7 @@ class _QuestScreenState extends State<QuestScreen> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '${nextWorld.requiredPoints - _questPoints} pts to ${nextWorld.name} · earn PRs to progress',
+                      '${nextWorld.requiredPoints - _questPoints} QP to ${nextWorld.name} · earn PRs to progress',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 11,

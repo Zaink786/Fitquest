@@ -17,6 +17,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Map<String, double> _todaysMacros = {};
   bool _isLoading = true;
   int _totalFoods = 0;
+  bool _hasSeenNutritionWarning = false;
 
   // Daily goals
   double _calorieGoal = 2000;
@@ -27,6 +28,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   @override
   void initState() {
     super.initState();
+    _hasSeenNutritionWarning = StorageService.hasSeenNutritionWarning();
     _loadData();
   }
 
@@ -247,20 +249,39 @@ class _NutritionScreenState extends State<NutritionScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF3E2800) : const Color(0xFFFFF8E1),
-                border: const Border(
-                  left: BorderSide(color: Color(0xFFFB8C00), width: 2),
-                ),
+            if (!_hasSeenNutritionWarning)
+              Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF3E2800) : const Color(0xFFFFF8E1),
+                      border: const Border(
+                        left: BorderSide(color: Color(0xFFFB8C00), width: 2),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            'Calorie and macro values are estimates. Consult a dietitian for personalised advice.',
+                            style: TextStyle(fontSize: 10, color: Color(0xFFE65100)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () async {
+                            await StorageService.setHasSeenNutritionWarning();
+                            setState(() => _hasSeenNutritionWarning = true);
+                          },
+                          child: const Icon(Icons.close, size: 16, color: Color(0xFFE65100)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
-              child: const Text(
-                'Calorie and macro values are estimates. Consult a dietitian for personalised advice.',
-                style: TextStyle(fontSize: 10, color: Color(0xFFE65100)),
-              ),
-            ),
-            const SizedBox(height: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'storage_service.dart';
 
 /// Simple local authentication using SHA-256 hashed passwords stored in
 /// SharedPreferences. All data stays on-device.
@@ -20,6 +21,7 @@ class AuthService {
     _currentUser = prefs.getString(_currentUserKey);
     // Backfill creation timestamp for accounts that pre-date this feature.
     if (_currentUser != null) {
+      await StorageService.openUserBox(_currentUser!);
       final key = '$_createdAtPrefix${_currentUser!.trim().toLowerCase()}';
       if (prefs.getString(key) == null) {
         await prefs.setString(key, DateTime.now().toIso8601String());
@@ -87,6 +89,8 @@ class AuthService {
       );
     }
     await _persistCurrentUser(prefs, normalizedEmail);
+    await StorageService.openUserBox(normalizedEmail);
+    await StorageService.markOnboardingTipsPending();
     return null;
   }
 
@@ -101,12 +105,14 @@ class AuthService {
     }
 
     await _persistCurrentUser(prefs, normalizedEmail);
-    await prefs.setBool('pending_welcome_back', true);
+    await StorageService.openUserBox(normalizedEmail);
+    await StorageService.setPendingWelcomeBack();
     return null;
   }
 
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
+    await StorageService.switchToAnonymousStorage();
     _currentUser = null;
     await prefs.remove(_currentUserKey);
   }

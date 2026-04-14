@@ -45,11 +45,11 @@ class _FitQuestAppState extends State<FitQuestApp> {
   // Light: warm off-white shell, white cards, rich purple accent.
   // Dark: near-black shell, one-step-up cards, lighter purple accent.
   static const _accentLight = Color(0xFF5B4FCF);
-  static const _accentDark  = Color(0xFFA695F5);
-  static const _shellLight  = Color(0xFFF5F4F0);
-  static const _shellDark   = Color(0xFF0C0C0C);
-  static const _cardLight   = Color(0xFFFFFFFF);
-  static const _cardDark    = Color(0xFF1A1A1A);
+  static const _accentDark = Color(0xFFA695F5);
+  static const _shellLight = Color(0xFFF5F4F0);
+  static const _shellDark = Color(0xFF0C0C0C);
+  static const _cardLight = Color(0xFFFFFFFF);
+  static const _cardDark = Color(0xFF1A1A1A);
 
   ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Color(0xFF9FA8DA), // Workouts
     Color(0xFF1B5E20), // Nutrition
     Color(0xFF4A148C), // Achievements
-    Colors.amber,     // Quest
+    Colors.amber, // Quest
     Color(0xFF212121), // Settings
   ];
 
@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Color(0xFF9FA8DA), // Workouts
     Color(0xFF66BB6A), // Nutrition
     Color(0xFFCE93D8), // Achievements
-    Colors.amber,     // Quest
+    Colors.amber, // Quest
     Color(0xFF9E9E9E), // Settings
   ];
 
@@ -180,14 +180,14 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: Builder(
         builder: (context) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
-          final navBg = isDark ? _FitQuestAppState._cardDark : _FitQuestAppState._cardLight;
+          final navBg = isDark
+              ? _FitQuestAppState._cardDark
+              : _FitQuestAppState._cardLight;
           final borderColor = isDark ? Colors.white12 : const Color(0xFFE8E8E8);
           return Container(
             decoration: BoxDecoration(
               color: navBg,
-              border: Border(
-                top: BorderSide(color: borderColor, width: 0.5),
-              ),
+              border: Border(top: BorderSide(color: borderColor, width: 0.5)),
             ),
             child: SafeArea(
               top: false,

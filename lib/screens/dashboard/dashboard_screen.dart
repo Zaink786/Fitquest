@@ -20,6 +20,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _streakDays = 0;
   late LevelInfo _levelInfo;
 
+  bool _showWelcomeTip = false;
+  bool _showCalorieTip = false;
+
   String _username() {
     final displayName = AuthService.getDisplayName();
     if (displayName != null && displayName.isNotEmpty) return displayName;
@@ -66,6 +69,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _showWelcomeTip = StorageService.hasPendingOnboardingTips() &&
+        !StorageService.hasSeenWelcomeTip();
+    _showCalorieTip = StorageService.hasPendingOnboardingTips() &&
+        !StorageService.hasSeenCalorieTip();
     _loadDashboardData();
   }
 
@@ -198,9 +205,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 iconColor: const Color(0xFF5B4FCF),
                 pillLight: const Color(0xFFEDE9FB),
                 pillDark: const Color(0xFF1E1A3D),
-                label: '$questPoints Quest Points',
+                label: '$questPoints QP (Quest Points)',
                 subtitle: nextWorld != null
-                    ? '$ptsToNext pts to ${nextWorld.name}'
+                    ? '$ptsToNext QP to ${nextWorld.name}'
                     : 'All worlds unlocked!',
                 reward: nextWorld != null
                     ? '$ptsToNext to ${nextWorld.name}'
@@ -262,6 +269,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
+                // Onboarding tips
+                if (_showWelcomeTip) ...[
+                  _WelcomeBackBanner(
+                    message:
+                        'Welcome to FitQuest! XP levels you up from any activity. Quest Points come only from personal records — beating your previous weight or reps unlocks new worlds.',
+                    onDismiss: () async {
+                      await StorageService.setHasSeenWelcomeTip();
+                      setState(() => _showWelcomeTip = false);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                if (_showCalorieTip) ...[
+                  _WelcomeBackBanner(
+                    message:
+                        'Calorie requirements vary by individual. This is a general guide only — consult a healthcare professional for personalised advice.',
+                    onDismiss: () async {
+                      await StorageService.setHasSeenCalorieTip();
+                      setState(() => _showCalorieTip = false);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 if (_isLoading) ...[
                   const Center(child: CircularProgressIndicator()),
@@ -411,7 +443,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _StatCard(
                           iconText: '⭐',
                           value: '$questPoints',
-                          label: 'Quest\npts',
+                          label: 'Quest\nPoints',
                           valueColor: const Color(0xFFF9A825),
                         ),
                       ],
@@ -487,10 +519,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ? Colors.white.withValues(alpha: 0.07)
                               : Colors.black.withValues(alpha: 0.06),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            'QUEST POINTS — unlock new worlds',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.0,
+                              color: const Color(0xFFF9A825).withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ),
                         _EarnRow(
                           icon: Icons.star,
                           label: 'Personal record',
-                          subtitle: 'Beat your best',
+                          subtitle: 'Beat your best workouts to earn QPs',
                           reward: '+50 QP',
                           pillLight: const Color(0xFFFFF8E1),
                           pillDark:  const Color(0xFF2D1F00),

@@ -6,21 +6,101 @@ import '../models/level_model.dart';
 class StorageService {
   static late SharedPreferences _prefs;
   static late Box<WorkoutSession> _workoutsBox;
+  static String _userPrefix = '';
+  static String? _currentWorkoutBoxName;
+
+  static const String _currentUserKey = 'auth_current_user';
 
   // Keys for SharedPreferences
-  static const String _pointsKey = 'total_points';
-  static const String _streakKey = 'current_streak';
-  static const String _lastActiveKey = 'last_active_date';
-  static const String _stepsKey = 'today_steps';
-  static const String _stepDateKey = 'step_date';
-  static const String _dailyPointsKey = 'daily_points';
-  static const String _dailyPointsDateKey = 'daily_points_date';
-  static const String _unlockedAchievementsKey = 'unlocked_achievements';
-  static const String _calorieGoalMetDateKey = 'calorie_goal_met_date';
-  static const String _questPointsKey = 'quest_points';
-  static const String _hasSeenOnboardingKey = 'has_seen_onboarding';
-  static const String _pendingWelcomeBackKey = 'pending_welcome_back';
-  static const String _pendingOnboardingFlowKey = 'pending_onboarding_flow';
+  static const String _pointsKeyBase = 'total_points';
+  static const String _streakKeyBase = 'current_streak';
+  static const String _lastActiveKeyBase = 'last_active_date';
+  static const String _stepsKeyBase = 'today_steps';
+  static const String _stepDateKeyBase = 'step_date';
+  static const String _dailyPointsKeyBase = 'daily_points';
+  static const String _dailyPointsDateKeyBase = 'daily_points_date';
+  static const String _unlockedAchievementsKeyBase = 'unlocked_achievements';
+  static const String _calorieGoalMetDateKeyBase = 'calorie_goal_met_date';
+  static const String _questPointsKeyBase = 'quest_points';
+  static const String _hasSeenOnboardingKeyBase = 'has_seen_onboarding';
+  static const String _pendingWelcomeBackKeyBase = 'pending_welcome_back';
+  static const String _pendingOnboardingFlowKeyBase = 'pending_onboarding_flow';
+  static const String _hasSeenNutritionWarningKeyBase =
+      'has_seen_nutrition_warning';
+  static const String _pendingOnboardingTipsKeyBase = 'pending_onboarding_tips';
+  static const String _hasSeenWelcomeTipKeyBase = 'has_seen_welcome_tip';
+  static const String _hasSeenCalorieTipKeyBase = 'has_seen_calorie_tip';
+
+  static String _withUserPrefix(String key) => '$_userPrefix$key';
+
+  static String get _pointsKey => _withUserPrefix(_pointsKeyBase);
+  static String get _streakKey => _withUserPrefix(_streakKeyBase);
+  static String get _lastActiveKey => _withUserPrefix(_lastActiveKeyBase);
+  static String get _stepsKey => _withUserPrefix(_stepsKeyBase);
+  static String get _stepDateKey => _withUserPrefix(_stepDateKeyBase);
+  static String get _dailyPointsKey => _withUserPrefix(_dailyPointsKeyBase);
+  static String get _dailyPointsDateKey =>
+      _withUserPrefix(_dailyPointsDateKeyBase);
+  static String get _unlockedAchievementsKey =>
+      _withUserPrefix(_unlockedAchievementsKeyBase);
+  static String get _calorieGoalMetDateKey =>
+      _withUserPrefix(_calorieGoalMetDateKeyBase);
+  static String get _questPointsKey => _withUserPrefix(_questPointsKeyBase);
+  static String get _hasSeenOnboardingKey =>
+      _withUserPrefix(_hasSeenOnboardingKeyBase);
+  static String get _pendingWelcomeBackKey =>
+      _withUserPrefix(_pendingWelcomeBackKeyBase);
+  static String get _pendingOnboardingFlowKey =>
+      _withUserPrefix(_pendingOnboardingFlowKeyBase);
+  static String get _hasSeenNutritionWarningKey =>
+      _withUserPrefix(_hasSeenNutritionWarningKeyBase);
+  static String get _pendingOnboardingTipsKey =>
+      _withUserPrefix(_pendingOnboardingTipsKeyBase);
+  static String get _hasSeenWelcomeTipKey =>
+      _withUserPrefix(_hasSeenWelcomeTipKeyBase);
+  static String get _hasSeenCalorieTipKey =>
+      _withUserPrefix(_hasSeenCalorieTipKeyBase);
+
+  static String _normalizeEmail(String email) => email.trim().toLowerCase();
+
+  static String _boxNameForEmail(String email) {
+    final normalized = _normalizeEmail(email);
+    final safe = normalized.replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+    return 'workouts_$safe';
+  }
+
+  static Future<void> _openWorkoutsBox(String boxName) async {
+    if (_currentWorkoutBoxName == boxName && Hive.isBoxOpen(boxName)) {
+      _workoutsBox = Hive.box<WorkoutSession>(boxName);
+      return;
+    }
+
+    if (_currentWorkoutBoxName != null &&
+        Hive.isBoxOpen(_currentWorkoutBoxName!)) {
+      await Hive.box<WorkoutSession>(_currentWorkoutBoxName!).close();
+    }
+
+    _workoutsBox = await Hive.openBox<WorkoutSession>(boxName);
+    _currentWorkoutBoxName = boxName;
+  }
+
+  static void setCurrentUser(String email) {
+    _userPrefix = '${_normalizeEmail(email)}_';
+  }
+
+  static Future<void> openUserBox(String email) async {
+    setCurrentUser(email);
+    await _openWorkoutsBox(_boxNameForEmail(email));
+  }
+
+  static Future<void> switchToAnonymousStorage() async {
+    clearCurrentUser();
+    await _openWorkoutsBox('workouts');
+  }
+
+  static void clearCurrentUser() {
+    _userPrefix = '';
+  }
 
   static Future<void> initialize() async {
     // Initialize SharedPreferences
@@ -36,8 +116,12 @@ class StorageService {
       Hive.registerAdapter(WorkoutExerciseAdapter());
     }
 
-    // Open boxes
-    _workoutsBox = await Hive.openBox<WorkoutSession>('workouts');
+    final currentUser = _prefs.getString(_currentUserKey);
+    if (currentUser != null && currentUser.trim().isNotEmpty) {
+      await openUserBox(currentUser);
+    } else {
+      await switchToAnonymousStorage();
+    }
   }
 
   // Points
@@ -339,6 +423,42 @@ class StorageService {
 
   static Future<void> setHasSeenOnboarding() async {
     await _prefs.setBool(_hasSeenOnboardingKey, true);
+  }
+
+  // Nutrition warning
+
+  static bool hasSeenNutritionWarning() {
+    return _prefs.getBool(_hasSeenNutritionWarningKey) ?? false;
+  }
+
+  static Future<void> setHasSeenNutritionWarning() async {
+    await _prefs.setBool(_hasSeenNutritionWarningKey, true);
+  }
+
+  // Onboarding tips (shown on first login)
+
+  static bool hasPendingOnboardingTips() {
+    return _prefs.getBool(_pendingOnboardingTipsKey) ?? false;
+  }
+
+  static Future<void> markOnboardingTipsPending() async {
+    await _prefs.setBool(_pendingOnboardingTipsKey, true);
+  }
+
+  static bool hasSeenWelcomeTip() {
+    return _prefs.getBool(_hasSeenWelcomeTipKey) ?? false;
+  }
+
+  static Future<void> setHasSeenWelcomeTip() async {
+    await _prefs.setBool(_hasSeenWelcomeTipKey, true);
+  }
+
+  static bool hasSeenCalorieTip() {
+    return _prefs.getBool(_hasSeenCalorieTipKey) ?? false;
+  }
+
+  static Future<void> setHasSeenCalorieTip() async {
+    await _prefs.setBool(_hasSeenCalorieTipKey, true);
   }
 
   //  Cleanup

@@ -221,7 +221,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               );
               final session = WorkoutSession(
                 id: DateTime.now().millisecondsSinceEpoch.toString(),
-                name: '${exercise.category} Workout',
+                name: 'Single Workout',
                 date: DateTime.now(),
                 exercises: [workoutEx],
                 totalPoints: workoutEx.pointsEarned,
@@ -558,14 +558,18 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                               Icon(
                                 Icons.fitness_center,
                                 size: 28,
-                                color: isDark ? Colors.grey[700] : Colors.grey[300],
+                                color: isDark
+                                    ? Colors.grey[700]
+                                    : Colors.grey[300],
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'No recent sessions yet',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[400],
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -573,7 +577,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                                 'Complete a workout to see your history',
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                                  color: isDark
+                                      ? Colors.grey[500]
+                                      : Colors.grey[400],
                                 ),
                               ),
                             ],
@@ -583,12 +589,16 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     else
                       ...(_recentSessions.map((session) {
                         final exerciseCount = session.exercises.length;
-                        final subtitle = '$exerciseCount exercise${exerciseCount == 1 ? '' : 's'}'
+                        final subtitle =
+                            '$exerciseCount exercise${exerciseCount == 1 ? '' : 's'}'
                             '${session.durationSeconds != null ? '  ·  ${session.getDurationDisplay()}' : ''}';
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             decoration: BoxDecoration(
                               color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(14),
@@ -620,7 +630,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         session.name,
@@ -634,7 +645,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                                         subtitle,
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: isDark ? Colors.grey[500] : Colors.grey[500],
+                                          color: isDark
+                                              ? Colors.grey[500]
+                                              : Colors.grey[500],
                                         ),
                                       ),
                                     ],
