@@ -28,6 +28,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
   List<Routine> _routines = [];
   List<Exercise> _allExercises = [];
+  List<WorkoutSession> _recentSessions = [];
   bool _isLoading = true;
   bool _isRoutinesExpanded = true;
 
@@ -42,10 +43,15 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     try {
       final routines = await RoutineService.getRoutines();
       final exercises = await _exerciseService.loadExercises();
+      final allSessions = StorageService.getAllWorkouts();
+      // Sort newest-first and take the 5 most recent.
+      allSessions.sort((a, b) => b.date.compareTo(a.date));
+      final recent = allSessions.take(5).toList();
       if (mounted) {
         setState(() {
           _routines = routines;
           _allExercises = exercises;
+          _recentSessions = recent;
           _isLoading = false;
         });
       }
@@ -437,7 +443,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => ActiveWorkoutScreen(routine: routine)),
-    );
+    ).then((_) => _loadData());
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
@@ -474,17 +480,22 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Workouts'),
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text(
+                      'Workouts',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     // ── New Workout
                     const Text(
                       'New Workout',
@@ -500,8 +511,12 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                           child: _NewWorkoutCard(
                             label: 'Start Empty',
                             icon: Icons.fitness_center,
-                            backgroundColor: isDark ? const Color(0xFF1A1F3A) : const Color(0xFFE8EAF6),
-                            borderColor: isDark ? const Color(0xFF1A237E) : const Color(0xFF9FA8DA),
+                            backgroundColor: isDark
+                                ? const Color.fromARGB(255, 82, 102, 218)
+                                : const Color(0xFFE8EAF6),
+                            borderColor: isDark
+                                ? const Color(0xFF1A237E)
+                                : const Color(0xFF9FA8DA),
                             iconColor: const Color(0xFF1A237E),
                             onTap: _startEmptyWorkout,
                           ),
@@ -511,8 +526,12 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                           child: _NewWorkoutCard(
                             label: 'Generate Workout',
                             icon: Icons.auto_awesome,
-                            backgroundColor: isDark ? const Color(0xFF2A1A35) : const Color(0xFFF3E5F5),
-                            borderColor: isDark ? const Color(0xFF8E24AA) : const Color(0xFFCE93D8),
+                            backgroundColor: isDark
+                                ? const Color(0xFF2A1A35)
+                                : const Color(0xFFF3E5F5),
+                            borderColor: isDark
+                                ? const Color(0xFF8E24AA)
+                                : const Color(0xFFCE93D8),
                             iconColor: const Color(0xFF8E24AA),
                             onTap: _generateWorkout,
                           ),
@@ -530,36 +549,110 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.fitness_center,
-                              size: 28,
-                              color: Colors.grey.shade300,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'No recent sessions yet',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade400,
+                    if (_recentSessions.isEmpty)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.fitness_center,
+                                size: 28,
+                                color: isDark ? Colors.grey[700] : Colors.grey[300],
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Complete a workout to see your history',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey.shade400,
+                              const SizedBox(height: 8),
+                              Text(
+                                'No recent sessions yet',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Text(
+                                'Complete a workout to see your history',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: isDark ? Colors.grey[500] : Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
+                      )
+                    else
+                      ...(_recentSessions.map((session) {
+                        final exerciseCount = session.exercises.length;
+                        final subtitle = '$exerciseCount exercise${exerciseCount == 1 ? '' : 's'}'
+                            '${session.durationSeconds != null ? '  ·  ${session.getDurationDisplay()}' : ''}';
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.07)
+                                    : Colors.black.withValues(alpha: 0.06),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? const Color(0xFF1E1A3D)
+                                        : const Color(0xFFEDE9FB),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    Icons.fitness_center,
+                                    size: 18,
+                                    color: isDark
+                                        ? const Color(0xFFA695F5)
+                                        : const Color(0xFF5B4FCF),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        session.name,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        subtitle,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: isDark ? Colors.grey[500] : Colors.grey[500],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  '+${session.totalPoints} XP',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF2E7D32),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      })),
                     const SizedBox(height: 28),
 
                     // ── Routines header
@@ -573,22 +666,13 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.folder_outlined,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 6),
-                            GestureDetector(
-                              onTap: () => _openRoutineForm(),
-                              child: const Icon(
-                                Icons.add,
-                                color: Color(0xFF1A237E),
-                                size: 28,
-                              ),
-                            ),
-                          ],
+                        GestureDetector(
+                          onTap: () => _openRoutineForm(),
+                          child: const Icon(
+                            Icons.add,
+                            color: Color(0xFF1A237E),
+                            size: 28,
+                          ),
                         ),
                       ],
                     ),
@@ -843,7 +927,9 @@ class _RoutineCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 18,
-                        backgroundColor: const Color(0xFF1A237E).withValues(alpha: 0.12),
+                        backgroundColor: const Color(
+                          0xFF1A237E,
+                        ).withValues(alpha: 0.12),
                         child: const Icon(
                           Icons.fitness_center,
                           size: 16,
@@ -928,7 +1014,9 @@ class _PlanTemplateChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: const Color(0xFF1A237E).withValues(alpha: 0.25)),
+            border: Border.all(
+              color: const Color(0xFF1A237E).withValues(alpha: 0.25),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
