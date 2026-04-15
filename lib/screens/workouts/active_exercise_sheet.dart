@@ -60,7 +60,7 @@ class _ActiveExerciseSheetState extends State<ActiveExerciseSheet> {
   @override
   void dispose() {
     _syncToModel();
-    widget.onChanged();
+    WidgetsBinding.instance.addPostFrameCallback((_) => widget.onChanged());
     for (final c in _kgCtrls) {
       c.dispose();
     }
