@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/workout_session_model.dart';
 import '../models/level_model.dart';
+import '../models/achievement_model.dart';
 
 class StorageService {
   static late SharedPreferences _prefs;
@@ -20,6 +21,7 @@ class StorageService {
   static const String _dailyPointsKeyBase = 'daily_points';
   static const String _dailyPointsDateKeyBase = 'daily_points_date';
   static const String _unlockedAchievementsKeyBase = 'unlocked_achievements';
+  static const String _dailyAchievementsDateKeyBase = 'daily_achievements_date';
   static const String _calorieGoalMetDateKeyBase = 'calorie_goal_met_date';
   static const String _questPointsKeyBase = 'quest_points';
   static const String _hasSeenOnboardingKeyBase = 'has_seen_onboarding';
@@ -43,6 +45,8 @@ class StorageService {
       _withUserPrefix(_dailyPointsDateKeyBase);
   static String get _unlockedAchievementsKey =>
       _withUserPrefix(_unlockedAchievementsKeyBase);
+  static String get _dailyAchievementsDateKey =>
+      _withUserPrefix(_dailyAchievementsDateKeyBase);
   static String get _calorieGoalMetDateKey =>
       _withUserPrefix(_calorieGoalMetDateKeyBase);
   static String get _questPointsKey => _withUserPrefix(_questPointsKeyBase);
@@ -333,9 +337,60 @@ class StorageService {
     if (!unlocked.contains(achievementId)) {
       unlocked.add(achievementId);
       await _prefs.setStringList(_unlockedAchievementsKey, unlocked);
-      // +30 XP for unlocking any achievement
-      await addPoints(30);
-      await addDailyPoints(30);
+
+      // Find the achievement to get its reward
+      final achievement = Achievements.allAchievements.firstWhere(
+        (a) => a.id == achievementId,
+        orElse: () => Achievements.firstWorkout, // Fallback
+      );
+
+      final reward = achievement.xpReward > 0
+          ? achievement.xpReward
+          : 30; // 30 is default
+
+      await addPoints(reward);
+      await addDailyPoints(reward);
+    }
+  }
+
+  static Future<void> _checkDailyAchievementsReset() async {
+    final today = DateTime.now();
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final lastResetDate = _prefs.getString(_dailyAchievementsDateKey);
+
+    if (lastResetDate != todayStr) {
+      // New day - reset daily achievements from unlocked list
+      final unlocked = getUnlockedAchievements();
+      final dailyIds = Achievements.allAchievements
+          .where((a) => a.isDaily)
+          .map((a) => a.id)
+          .toList();
+
+      final filtered = unlocked.where((id) => !dailyIds.contains(id)).toList();
+      await _prefs.setStringList(_unlockedAchievementsKey, filtered);
+      await _prefs.setString(_dailyAchievementsDateKey, todayStr);
+    }
+  }
+
+  static Future<void> checkDailyWorkout() async {
+    await _checkDailyAchievementsReset();
+    if (!isAchievementUnlocked('daily_workout')) {
+      await unlockAchievement('daily_workout');
+    }
+  }
+
+  static Future<void> checkDailyNutrition(int mealCount) async {
+    await _checkDailyAchievementsReset();
+    if (mealCount >= 3 && !isAchievementUnlocked('daily_nutrition')) {
+      await unlockAchievement('daily_nutrition');
+    }
+  }
+
+  static Future<void> checkDailySteps(int steps) async {
+    await _checkDailyAchievementsReset();
+    if (steps >= 5000 && !isAchievementUnlocked('daily_steps')) {
+      await unlockAchievement('daily_steps');
     }
   }
 

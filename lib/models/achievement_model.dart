@@ -7,6 +7,8 @@ class Achievement {
   final int currentProgress;
   final bool isUnlocked;
   final DateTime? unlockedAt;
+  final int xpReward;
+  final bool isDaily;
 
   Achievement({
     required this.id,
@@ -17,6 +19,8 @@ class Achievement {
     this.currentProgress = 0,
     required this.isUnlocked,
     this.unlockedAt,
+    this.xpReward = 0,
+    this.isDaily = false,
   });
 
   Achievement copyWith({
@@ -28,6 +32,8 @@ class Achievement {
     int? currentProgress,
     bool? isUnlocked,
     DateTime? unlockedAt,
+    int? xpReward,
+    bool? isDaily,
   }) {
     return Achievement(
       id: id ?? this.id,
@@ -38,12 +44,47 @@ class Achievement {
       currentProgress: currentProgress ?? this.currentProgress,
       isUnlocked: isUnlocked ?? this.isUnlocked,
       unlockedAt: unlockedAt ?? this.unlockedAt,
+      xpReward: xpReward ?? this.xpReward,
+      isDaily: isDaily ?? this.isDaily,
     );
   }
 }
 
 // Predefined achievements
 class Achievements {
+  static Achievement get dailyWorkout => Achievement(
+    id: 'daily_workout',
+    title: 'Daily Warrior',
+    description: 'Complete a workout today',
+    icon: '💪',
+    targetValue: 1,
+    isUnlocked: false,
+    xpReward: 50,
+    isDaily: true,
+  );
+
+  static Achievement get dailyNutrition => Achievement(
+    id: 'daily_nutrition',
+    title: 'Healthy Eater',
+    description: 'Log 3 meals today',
+    icon: '🥗',
+    targetValue: 3,
+    isUnlocked: false,
+    xpReward: 30,
+    isDaily: true,
+  );
+
+  static Achievement get dailySteps => Achievement(
+    id: 'daily_steps',
+    title: 'Step Master',
+    description: 'Reach 5,000 steps today',
+    icon: '👣',
+    targetValue: 5000,
+    isUnlocked: false,
+    xpReward: 40,
+    isDaily: true,
+  );
+
   static Achievement get first100Points => Achievement(
     id: 'first_100_points',
     title: 'Century Club',
@@ -51,6 +92,7 @@ class Achievements {
     icon: '💯',
     targetValue: 100,
     isUnlocked: false,
+    xpReward: 100,
   );
 
   static Achievement get firstWorkout => Achievement(
@@ -59,6 +101,7 @@ class Achievements {
     description: 'Logged your first workout!',
     icon: '🎯',
     isUnlocked: false,
+    xpReward: 50,
   );
 
   static Achievement get consistencyStarter => Achievement(
@@ -68,6 +111,7 @@ class Achievements {
     icon: '🔥',
     targetValue: 3,
     isUnlocked: false,
+    xpReward: 150,
   );
 
   static Achievement get firstMealLogged => Achievement(
@@ -76,6 +120,7 @@ class Achievements {
     description: 'Logged your first meal!',
     icon: '🍽️',
     isUnlocked: false,
+    xpReward: 20,
   );
 
   static Achievement get firstPr => Achievement(
@@ -84,6 +129,7 @@ class Achievements {
     description: 'Beat a personal record.',
     icon: '⚡',
     isUnlocked: false,
+    xpReward: 75,
   );
 
   static Achievement get worldTraveller => Achievement(
@@ -93,6 +139,7 @@ class Achievements {
     icon: '🌍',
     targetValue: 100,
     isUnlocked: false,
+    xpReward: 500,
   );
 
   static Achievement get dedicated => Achievement(
@@ -102,9 +149,13 @@ class Achievements {
     icon: '💪',
     targetValue: 7,
     isUnlocked: false,
+    xpReward: 300,
   );
 
   static List<Achievement> get allAchievements => [
+    dailyWorkout,
+    dailyNutrition,
+    dailySteps,
     firstWorkout,
     first100Points,
     firstPr,
