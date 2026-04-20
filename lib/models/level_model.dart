@@ -23,7 +23,36 @@ class LevelSystem {
     900, // Level 17 → 18
     1000, // Level 18 → 19
     1200, // Level 19 → 20
-    1500, // Level 20 → 21  (and so on)
+    1500, // Level 20 → 21
+    1800, // Level 21 → 22
+    2100, // Level 22 → 23
+    2400, // Level 23 → 24
+    2700, // Level 24 → 25
+    3000, // Level 25 → 26
+    3400, // Level 26 → 27
+    3800, // Level 27 → 28
+    4200, // Level 28 → 29
+    4600, // Level 29 → 30
+    5000, // Level 30 → 31
+    5500, // Level 31 → 32
+    6000, // Level 32 → 33
+    6500, // Level 33 → 34
+    7000, // Level 34 → 35
+    7600, // Level 35 → 36
+    8200, // Level 36 → 37
+    8800, // Level 37 → 38
+    9400, // Level 38 → 39
+    10000, // Level 39 → 40
+    10700, // Level 40 → 41
+    11400, // Level 41 → 42
+    12100, // Level 42 → 43
+    12800, // Level 43 → 44
+    13500, // Level 44 → 45
+    14300, // Level 45 → 46
+    15100, // Level 46 → 47
+    15900, // Level 47 → 48
+    16700, // Level 48 → 49
+    17500, // Level 49 → 50
   ];
 
   /// Get the cumulative XP required to reach a given level.
