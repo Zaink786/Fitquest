@@ -20,6 +20,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   Future<void> _loadAchievements() async {
+    // Reset daily achievements at the start so they always refresh on a new day,
+    // even if the user never completes a daily goal that session.
+    await StorageService.resetDailyAchievementsIfNeeded();
+
     final streak = StorageService.getCurrentStreak();
     final dailyPoints = StorageService.getDailyPoints();
     final questPoints = StorageService.getQuestPoints();

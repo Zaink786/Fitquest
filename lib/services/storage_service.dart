@@ -353,6 +353,9 @@ class StorageService {
     }
   }
 
+  static Future<void> resetDailyAchievementsIfNeeded() =>
+      _checkDailyAchievementsReset();
+
   static Future<void> _checkDailyAchievementsReset() async {
     final today = DateTime.now();
     final todayStr =
