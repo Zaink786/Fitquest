@@ -387,7 +387,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               decoration: BoxDecoration(
                                 color: isDark
                                     ? const Color(0xFF2A2060)
-                                    : const Color(0xFF9FA8DA),
+                                    : const Color(0xFF8896CC),
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Center(
@@ -572,7 +572,7 @@ class _WelcomeBackBanner extends StatelessWidget {
         color: isDark ? const Color(0xFF1A2744) : const Color(0xFFE8EAF6),
         borderRadius: BorderRadius.circular(16),
         border: Border(
-          left: BorderSide(color: const Color(0xFF9FA8DA), width: 4),
+          left: BorderSide(color: const Color(0xFF8896CC), width: 4),
         ),
       ),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),

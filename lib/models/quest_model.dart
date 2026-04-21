@@ -51,7 +51,7 @@ const List<QuestWorld> questWorlds = [
     description: 'The air thins. Each step demands more power.',
     requiredPoints: 600,
     icon: Icons.terrain,
-    gradient: [Color(0xFF5C6BC0), Color(0xFF9FA8DA)],
+    gradient: [Color(0xFF5C6BC0), Color(0xFF8896CC)],
   ),
   QuestWorld(
     id: 5,
@@ -92,7 +92,7 @@ const List<QuestWorld> questWorlds = [
     description: 'Beyond reality itself. Few have ever stood here.',
     requiredPoints: 4000,
     icon: Icons.dark_mode,
-    gradient: [Color(0xFF9FA8DA), Color(0xFF534BAE)],
+    gradient: [Color(0xFF8896CC), Color(0xFF534BAE)],
   ),
   QuestWorld(
     id: 10,

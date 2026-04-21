@@ -322,7 +322,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
             ),
             Text(
               _timerDisplay,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF9FA8DA)),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF8896CC)),
             ),
           ],
         ),
@@ -332,7 +332,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
             child: Text(
               '+$_totalXp XP',
               style: const TextStyle(
-                color: Color(0xFF9FA8DA),
+                color: Color(0xFF8896CC),
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -385,10 +385,10 @@ class _ExerciseTile extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: isComplete
               ? Colors.green
-              : const Color(0xFF9FA8DA).withValues(alpha: 0.12),
+              : const Color(0xFF8896CC).withValues(alpha: 0.12),
           child: isComplete
               ? const Icon(Icons.check, color: Colors.white, size: 20)
-              : const Icon(Icons.fitness_center, color: Color(0xFF9FA8DA), size: 20),
+              : const Icon(Icons.fitness_center, color: Color(0xFF8896CC), size: 20),
         ),
         title: Text(
           entry.exerciseName,

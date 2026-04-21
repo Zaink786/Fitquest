@@ -102,7 +102,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     switch (a.id) {
       case 'consistency_starter':
       case 'dedicated':
-        return const Color(0xFF9FA8DA);
+        return const Color(0xFF8896CC);
       case 'first_meal_logged':
         return const Color(0xFFE65100);
       case 'first_100_points':
@@ -110,7 +110,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       case 'world_traveller':
         return const Color(0xFF9C27B0);
       default:
-        return const Color(0xFF9FA8DA);
+        return const Color(0xFF8896CC);
     }
   }
 

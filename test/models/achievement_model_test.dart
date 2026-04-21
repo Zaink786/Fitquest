@@ -106,27 +106,23 @@ void main() {
 
     test('contains the expected achievement ids', () {
       final ids = Achievements.allAchievements.map((a) => a.id).toSet();
-      expect(
-        ids,
-        {
-          'daily_workout',
-          'daily_nutrition',
-          'daily_steps',
-          'first_workout',
-          'first_100_points',
-          'first_pr',
-          'consistency_starter',
-          'first_meal_logged',
-          'world_traveller',
-          'dedicated',
-        },
-      );
+      expect(ids, {
+        'daily_workout',
+        'daily_nutrition',
+        'daily_steps',
+        'first_workout',
+        'first_100_points',
+        'first_pr',
+        'consistency_starter',
+        'first_meal_logged',
+        'world_traveller',
+        'dedicated',
+      });
     });
 
     test('all achievements are initially unlocked=false', () {
       for (final a in Achievements.allAchievements) {
-        expect(a.isUnlocked, false,
-            reason: '${a.id} should start locked');
+        expect(a.isUnlocked, false, reason: '${a.id} should start locked');
       }
     });
 

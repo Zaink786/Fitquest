@@ -78,7 +78,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                   width: _page == i ? 20 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: _page == i ? const Color(0xFF9FA8DA) : Colors.grey[300],
+                    color: _page == i ? const Color(0xFF8896CC) : Colors.grey[300],
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -95,7 +95,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                 child: ElevatedButton(
                   onPressed: _next,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF9FA8DA),
+                    backgroundColor: const Color(0xFF8896CC),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
