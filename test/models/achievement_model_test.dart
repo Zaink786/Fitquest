@@ -100,8 +100,27 @@ void main() {
   });
 
   group('Achievements.allAchievements', () {
-    test('contains exactly 7 achievements', () {
-      expect(Achievements.allAchievements.length, 7);
+    test('contains exactly 10 achievements', () {
+      expect(Achievements.allAchievements.length, 10);
+    });
+
+    test('contains the expected achievement ids', () {
+      final ids = Achievements.allAchievements.map((a) => a.id).toSet();
+      expect(
+        ids,
+        {
+          'daily_workout',
+          'daily_nutrition',
+          'daily_steps',
+          'first_workout',
+          'first_100_points',
+          'first_pr',
+          'consistency_starter',
+          'first_meal_logged',
+          'world_traveller',
+          'dedicated',
+        },
+      );
     });
 
     test('all achievements are initially unlocked=false', () {
