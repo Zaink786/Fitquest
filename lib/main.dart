@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
+
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/onboarding/onboarding_flow_screen.dart';
 import 'screens/workouts/workouts_screen.dart';
@@ -43,8 +44,8 @@ class _FitQuestAppState extends State<FitQuestApp> {
 
   // Light: warm off-white shell, white cards, rich purple accent.
   // Dark: near-black shell, one-step-up cards, lighter purple accent.
-  static const _accentLight = Color(0xFF5B4FCF);
-  static const _accentDark = Color(0xFFA695F5);
+  static const _accentLight = Color(0xFF4D42BC);
+  static const _accentDark = Color(0xFF9480F0);
   static const _shellLight = Color(0xFFF5F4F0);
   static const _shellDark = Color(0xFF0C0C0C);
   static const _cardLight = Color(0xFFFFFFFF);
@@ -89,6 +90,7 @@ class _FitQuestAppState extends State<FitQuestApp> {
           theme: _buildTheme(Brightness.light),
           darkTheme: _buildTheme(Brightness.dark),
           themeMode: themeMode,
+
           home: !_isLoggedIn
               ? LoginScreen(onLogin: _onLogin)
               : _needsOnboarding
@@ -113,8 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   static const _pipColorsLight = [
-    Color(0xFF9FA8DA), // Dashboard
-    Color(0xFF9FA8DA), // Workouts
+    Color(0xFF8896CC), // Dashboard
+    Color(0xFF8896CC), // Workouts
     Color(0xFF1B5E20), // Nutrition
     Color(0xFF4A148C), // Achievements
     Colors.amber, // Quest
@@ -122,8 +124,8 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   static const _pipColorsDark = [
-    Color(0xFF9FA8DA), // Dashboard
-    Color(0xFF9FA8DA), // Workouts
+    Color(0xFF8896CC), // Dashboard
+    Color(0xFF8896CC), // Workouts
     Color(0xFF66BB6A), // Nutrition
     Color(0xFFCE93D8), // Achievements
     Colors.amber, // Quest

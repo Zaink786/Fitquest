@@ -79,6 +79,47 @@ class NutritionService {
     return {'totalFoods': foods.length, 'categories': categories.length};
   }
 
+  // ─── Custom Foods ───
+
+  static const _customFoodsKey = 'user_custom_foods';
+
+  static Future<List<FoodItem>> getCustomFoods() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(_customFoodsKey) ?? [];
+    return raw.map((s) {
+      final map = json.decode(s) as Map<String, dynamic>;
+      return FoodItem(
+        name: map['name'] as String,
+        category: 'Custom',
+        calories: (map['calories'] as num).toDouble(),
+        protein: (map['protein'] as num? ?? 0).toDouble(),
+        carbohydrates: (map['carbohydrates'] as num? ?? 0).toDouble(),
+        fat: (map['fat'] as num? ?? 0).toDouble(),
+        fiber: 0, sugars: 0, sodium: 0, cholesterol: 0,
+        mealType: '', waterIntake: 0,
+      );
+    }).toList();
+  }
+
+  static Future<void> addCustomFood(
+    String name,
+    double calories, {
+    double protein = 0,
+    double carbohydrates = 0,
+    double fat = 0,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final existing = prefs.getStringList(_customFoodsKey) ?? [];
+    existing.add(json.encode({
+      'name': name.trim(),
+      'calories': calories,
+      'protein': protein,
+      'carbohydrates': carbohydrates,
+      'fat': fat,
+    }));
+    await prefs.setStringList(_customFoodsKey, existing);
+  }
+
   // ─── Meal Logging (SharedPreferences) ───
 
   static const _mealsKey = 'logged_meals';
@@ -178,5 +219,24 @@ class NutritionService {
   static Future<void> saveCalorieGoal(double goal) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(_calorieGoalKey, goal);
+  }
+
+  // ─── Macro Goals ───
+
+  static Future<Map<String, double>> getMacroGoals() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'protein': prefs.getDouble('macro_goal_protein') ?? 150,
+      'carbs': prefs.getDouble('macro_goal_carbs') ?? 250,
+      'fat': prefs.getDouble('macro_goal_fat') ?? 65,
+      'fiber': prefs.getDouble('macro_goal_fiber') ?? 30,
+    };
+  }
+
+  static Future<void> saveMacroGoals(Map<String, double> goals) async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final e in goals.entries) {
+      await prefs.setDouble('macro_goal_${e.key}', e.value);
+    }
   }
 }

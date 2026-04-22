@@ -21,9 +21,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   // Daily goals
   double _calorieGoal = 2000;
-  final double _proteinGoal = 150;
-  final double _carbsGoal = 250;
-  final double _fatGoal = 65;
+  double _proteinGoal = 150;
+  double _carbsGoal = 250;
+  double _fatGoal = 65;
+  double _fiberGoal = 30;
 
   @override
   void initState() {
@@ -39,11 +40,16 @@ class _NutritionScreenState extends State<NutritionScreen> {
       final macros = await NutritionService.getTodaysMacros();
       final stats = await _nutritionService.getDatabaseStats();
       final calorieGoal = await NutritionService.getCalorieGoal();
+      final macroGoals = await NutritionService.getMacroGoals();
       setState(() {
         _todaysMeals = meals;
         _todaysMacros = macros;
         _totalFoods = stats['totalFoods'] ?? 0;
         _calorieGoal = calorieGoal;
+        _proteinGoal = macroGoals['protein']!;
+        _carbsGoal = macroGoals['carbs']!;
+        _fatGoal = macroGoals['fat']!;
+        _fiberGoal = macroGoals['fiber']!;
         _isLoading = false;
       });
     } catch (e) {
@@ -67,6 +73,58 @@ class _NutritionScreenState extends State<NutritionScreen> {
     if (result != null) {
       await NutritionService.saveCalorieGoal(result);
       setState(() => _calorieGoal = result);
+    }
+  }
+
+  Future<void> _showEditMacroGoalsDialog() async {
+    final pCtrl = TextEditingController(text: _proteinGoal.toInt().toString());
+    final cCtrl = TextEditingController(text: _carbsGoal.toInt().toString());
+    final fCtrl = TextEditingController(text: _fatGoal.toInt().toString());
+    final fiCtrl = TextEditingController(text: _fiberGoal.toInt().toString());
+
+    Widget field(String label, TextEditingController ctrl) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: ctrl,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: label,
+          suffixText: 'g',
+          border: const OutlineInputBorder(),
+          isDense: true,
+        ),
+      ),
+    );
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Daily Macro Goals'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              field('Protein (g)', pCtrl),
+              field('Carbs (g)', cCtrl),
+              field('Fat (g)', fCtrl),
+              field('Fiber (g)', fiCtrl),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+        ],
+      ),
+    );
+
+    if (ok == true) {
+      final p = double.tryParse(pCtrl.text) ?? _proteinGoal;
+      final c = double.tryParse(cCtrl.text) ?? _carbsGoal;
+      final f = double.tryParse(fCtrl.text) ?? _fatGoal;
+      final fi = double.tryParse(fiCtrl.text) ?? _fiberGoal;
+      await NutritionService.saveMacroGoals({'protein': p, 'carbs': c, 'fat': f, 'fiber': fi});
+      setState(() { _proteinGoal = p; _carbsGoal = c; _fatGoal = f; _fiberGoal = fi; });
     }
   }
 
@@ -338,9 +396,15 @@ class _NutritionScreenState extends State<NutritionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Macronutrients',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Macronutrients', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                GestureDetector(
+                  onTap: _showEditMacroGoalsDialog,
+                  child: Icon(Icons.edit, size: 18, color: Colors.grey[500]),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             _buildMacroRow(
@@ -367,7 +431,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             _buildMacroRow(
               'Fiber',
               _todaysMacros['fiber'] ?? 0,
-              30, // recommended daily fiber
+              _fiberGoal,
               Colors.green[400]!,
             ),
           ],
@@ -671,6 +735,7 @@ class _FoodSearchSheet extends StatefulWidget {
 class _FoodSearchSheetState extends State<_FoodSearchSheet> {
   final TextEditingController _searchController = TextEditingController();
   List<FoodItem> _filteredFoods = [];
+  List<FoodItem> _customFoods = [];
   String _selectedCategory = 'All';
   List<String> _categories = ['All'];
 
@@ -679,6 +744,7 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
     super.initState();
     _filteredFoods = widget.foods;
     _loadCategories();
+    _loadCustomFoods();
   }
 
   Future<void> _loadCategories() async {
@@ -688,9 +754,15 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
     });
   }
 
+  Future<void> _loadCustomFoods() async {
+    final custom = await NutritionService.getCustomFoods();
+    if (mounted) setState(() { _customFoods = custom; _filterFoods(); });
+  }
+
   void _filterFoods() {
+    final all = [...widget.foods, ..._customFoods];
     setState(() {
-      _filteredFoods = widget.foods.where((f) {
+      _filteredFoods = all.where((f) {
         final matchesSearch =
             _searchController.text.isEmpty ||
             f.name.toLowerCase().contains(_searchController.text.toLowerCase());
@@ -700,6 +772,80 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
         return matchesSearch && matchesCategory;
       }).toList();
     });
+  }
+
+  void _showManualAddDialog() {
+    final nameCtrl = TextEditingController();
+    final calCtrl = TextEditingController();
+    final proteinCtrl = TextEditingController();
+    final carbsCtrl = TextEditingController();
+    final fatCtrl = TextEditingController();
+
+    Widget macroField(String label, TextEditingController ctrl) => Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: TextField(
+        controller: ctrl,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: label,
+          suffixText: 'g',
+          hintText: 'optional',
+          isDense: true,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Food Manually'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameCtrl,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Food name',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              macroField('Calories (kcal)', calCtrl),
+              macroField('Protein (g)', proteinCtrl),
+              macroField('Carbs (g)', carbsCtrl),
+              macroField('Fat (g)', fatCtrl),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              final name = nameCtrl.text.trim();
+              final cal = double.tryParse(calCtrl.text.trim());
+              if (name.isEmpty || cal == null || cal <= 0) return;
+              final protein = double.tryParse(proteinCtrl.text.trim()) ?? 0;
+              final carbs = double.tryParse(carbsCtrl.text.trim()) ?? 0;
+              final fat = double.tryParse(fatCtrl.text.trim()) ?? 0;
+              await NutritionService.addCustomFood(name, cal, protein: protein, carbohydrates: carbs, fat: fat);
+              await _loadCustomFoods();
+              if (ctx.mounted) Navigator.pop(ctx);
+              final food = FoodItem(
+                name: name, category: 'Custom', calories: cal,
+                protein: protein, carbohydrates: carbs, fat: fat,
+                fiber: 0, sugars: 0, sodium: 0, cholesterol: 0,
+                mealType: '', waterIntake: 0,
+              );
+              _showServingsDialog(food);
+            },
+            child: const Text('Save & Log'),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Check if the user hit their calorie goal and award bonus XP once/day.
@@ -839,6 +985,17 @@ class _FoodSearchSheetState extends State<_FoodSearchSheet> {
                         );
                       },
                     ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: TextButton.icon(
+                onPressed: _showManualAddDialog,
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: const Text(
+                  "Can't find your food? Add it manually.",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
           ],
         );
