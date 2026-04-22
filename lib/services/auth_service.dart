@@ -139,6 +139,99 @@ class AuthService {
     await prefs.setString(_currentUserKey, email);
   }
 
+  // ── security questions ─────────────────────────────────────
+
+  static const _sqQuestionsPrefix = 'auth_sq_questions_';
+  static const _sqAnswersPrefix = 'auth_sq_answers_';
+
+  static const List<String> allSecurityQuestions = [
+    "What was the name of your first pet?",
+    "What was the name of your primary school?",
+    "What is your mother's maiden name?",
+    "What city were you born in?",
+    "What was your childhood nickname?",
+    "What is the name of your oldest sibling?",
+    "What street did you grow up on?",
+    "What was the make of your first car?",
+    "What was the name of your first best friend?",
+    "What was your favourite subject in school?",
+  ];
+
+  /// Returns true if the given email has security questions set up.
+  static Future<bool> hasSecurityQuestions(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_sqQuestionsPrefix${email.trim().toLowerCase()}';
+    return prefs.getString(key) != null;
+  }
+
+  /// Returns the list of stored question strings for [email], or null.
+  static Future<List<String>?> getSecurityQuestions(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(
+      '$_sqQuestionsPrefix${email.trim().toLowerCase()}',
+    );
+    if (raw == null) return null;
+    return List<String>.from(json.decode(raw) as List);
+  }
+
+  /// Saves security questions + hashed answers for [email].
+  /// [questionsAndAnswers] is a list of 3 (question, answer) pairs.
+  static Future<void> setSecurityQuestions(
+    String email,
+    List<MapEntry<String, String>> questionsAndAnswers,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final normalized = email.trim().toLowerCase();
+    final questions = questionsAndAnswers.map((e) => e.key).toList();
+    final answers =
+        questionsAndAnswers.map((e) => _hashAnswer(e.value)).toList();
+    await prefs.setString(
+      '$_sqQuestionsPrefix$normalized',
+      json.encode(questions),
+    );
+    await prefs.setString('$_sqAnswersPrefix$normalized', json.encode(answers));
+  }
+
+  /// Verifies answers against stored hashes. Returns true if all match.
+  static Future<bool> verifySecurityAnswers(
+    String email,
+    List<String> answers,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final normalized = email.trim().toLowerCase();
+    final raw = prefs.getString('$_sqAnswersPrefix$normalized');
+    if (raw == null) return false;
+    final stored = List<String>.from(json.decode(raw) as List);
+    if (stored.length != answers.length) return false;
+    for (int i = 0; i < stored.length; i++) {
+      if (stored[i] != _hashAnswer(answers[i])) return false;
+    }
+    return true;
+  }
+
+  /// Resets the password for [email] without verifying the old password.
+  /// Only call this after [verifySecurityAnswers] returns true.
+  static Future<String?> resetPassword(
+    String email,
+    String newPassword,
+  ) async {
+    if (newPassword.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    final normalized = email.trim().toLowerCase();
+    final prefs = await SharedPreferences.getInstance();
+    final users = _loadUsers(prefs);
+    if (!users.containsKey(normalized)) return 'No account found for that email';
+    users[normalized] = _hash(newPassword);
+    await _saveUsers(prefs, users);
+    return null;
+  }
+
+  static String _hashAnswer(String answer) {
+    final bytes = utf8.encode(answer.trim().toLowerCase());
+    return sha256.convert(bytes).toString();
+  }
+
   static String _hash(String password) {
     final bytes = utf8.encode(password);
     return sha256.convert(bytes).toString();

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/theme_service.dart';
+import '../auth/security_questions_setup_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onLogout;
@@ -59,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Account section
           ListTile(
             leading: CircleAvatar(
-              backgroundColor: const Color(0xFF9FA8DA),
+              backgroundColor: const Color(0xFF8896CC),
               child: Text(
                 initial,
                 style: const TextStyle(
@@ -95,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF9FA8DA),
+                            color: Color(0xFF8896CC),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -118,7 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF9FA8DA),
+                            color: Color(0xFF8896CC),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -141,7 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF9FA8DA),
+                            color: Color(0xFF8896CC),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -156,6 +157,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.security, color: Color(0xFF8896CC)),
+            title: const Text('Security Questions'),
+            subtitle: const Text('Set up account recovery questions'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const SecurityQuestionsSetupScreen(),
               ),
             ),
           ),
@@ -178,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(),
           const ListTile(
-            leading: Icon(Icons.info_outline, color: Color(0xFF9FA8DA)),
+            leading: Icon(Icons.info_outline, color: Color(0xFF8896CC)),
             title: Text('About'),
             subtitle: Text('FitQuest v1.0.0'),
           ),
@@ -191,6 +204,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: () {
               _showDataInfo(context);
             },
+          ),
+          ListTile(
+            leading: const Icon(Icons.speed, color: Colors.blue),
+            title: const Text('Storage Benchmark'),
+            subtitle: const Text('Compare Hive vs SharedPreferences'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pushNamed(context, '/benchmark'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.compare_arrows, color: Colors.teal),
+            title: const Text('Isolate Benchmark'),
+            subtitle: const Text('Main thread vs Dart Isolate CSV parse'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pushNamed(context, '/isolate-benchmark'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.trending_up, color: Colors.purple),
+            title: const Text('PR Detection Tester'),
+            subtitle: const Text('Test progressive overload detection logic'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pushNamed(context, '/pr-detection'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.show_chart, color: Colors.green),
+            title: const Text('XP Economy Simulator'),
+            subtitle: const Text('Simulate 12-week level progression'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pushNamed(context, '/xp-simulator'),
           ),
           ListTile(
             leading: const Icon(Icons.delete_forever, color: Colors.red),

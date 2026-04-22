@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onLogin;
@@ -188,6 +189,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
+                    const SizedBox(height: 4),
+
+                    // Forgot password (login mode only)
+                    if (!_isSignUp)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ForgotPasswordScreen(),
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            'Forgot password?',
+                            style: TextStyle(
+                              color: Color(0xFF8896CC),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+
                     const SizedBox(height: 12),
 
                     // Error message
