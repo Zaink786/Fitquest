@@ -409,6 +409,37 @@ class StorageService {
     }
   }
 
+  static Future<void> checkPrAchievement(WorkoutSession currentSession) async {
+    if (isAchievementUnlocked('first_pr')) return;
+
+    for (final exercise in currentSession.exercises) {
+      if (exercise.weight == null) continue;
+
+      final previousSessions = getAllWorkouts()
+          .where((session) => session.id != currentSession.id)
+          .toList();
+
+      double? maxPreviousWeight;
+      for (final session in previousSessions) {
+        for (final prevExercise in session.exercises) {
+          if (prevExercise.exerciseId == exercise.exerciseId &&
+              prevExercise.weight != null) {
+            maxPreviousWeight = maxPreviousWeight == null
+                ? prevExercise.weight
+                : (prevExercise.weight! > maxPreviousWeight
+                    ? prevExercise.weight
+                    : maxPreviousWeight);
+          }
+        }
+      }
+
+      if (maxPreviousWeight == null || exercise.weight! > maxPreviousWeight) {
+        await unlockAchievement('first_pr');
+        return;
+      }
+    }
+  }
+
   //  Calorie Goal
 
   /// Returns true if the calorie goal bonus was already awarded today.

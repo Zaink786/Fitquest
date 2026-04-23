@@ -151,6 +151,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     await StorageService.addPoints(session.totalPoints);
     await StorageService.addDailyPoints(session.totalPoints);
     await StorageService.checkFirstWorkoutAchievement();
+    await StorageService.checkPrAchievement(session);
     await StorageService.updateStreak();
     await StorageService.checkStreakAchievement(
       StorageService.getCurrentStreak(),
