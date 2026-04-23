@@ -76,10 +76,10 @@ class Achievements {
 
   static Achievement get dailySteps => Achievement(
     id: 'daily_steps',
-    title: 'Step Master',
-    description: 'Reach 5,000 steps today',
-    icon: '👣',
-    targetValue: 5000,
+    title: 'Daily Streak',
+    description: 'Maintain your daily streak',
+    icon: '🔥',
+    targetValue: 1,
     isUnlocked: false,
     xpReward: 40,
     isDaily: true,
